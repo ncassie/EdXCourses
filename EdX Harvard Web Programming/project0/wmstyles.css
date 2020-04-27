@@ -1,0 +1,40 @@
+h1 {
+  color: darkgreen;
+  text-align: center;
+}
+
+p {
+  margin: 30px;
+}
+
+.center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 50%;
+}
+
+.row {
+  padding: 20px;
+}
+
+#mountainTable {
+  margin: 40px;
+  border: 3px solid black;
+  border-collapse: collapse;
+}
+#mountainTable td, #mountainTable th {
+  border: 1px solid black;
+  border-collapse: collapse;
+  padding: 3px;
+}
+
+.mountain-ski {
+  font-family: sans-serif;
+}
+
+.mountain-ski {
+  color: blue;
+}
+
+/*# sourceMappingURL=wmstyles.css.map */

@@ -1,0 +1,198 @@
+SQL (using POSTRGRESQL)
+	in postgres:
+		\d on command line lists all tables
+	Datatypes
+		Integer
+		Decimal
+		Serial  // counts automatically
+		Varchar
+		Timestamp
+		Boolean
+		Enum
+		...
+
+	Constraints for columns
+		NOT NULL
+		UNIQUE
+		PRIMARY KEY
+		DEFAULT
+		CHECK
+		...
+
+	Create table
+		// id on every table practical way to get specific rows
+		CREATE TABLE flights(
+			id SERIAL PRIMARY KEY,
+			origin VARCHAR NOT NULL,
+			destination VARCHAR NOT NULL,
+			duration INTEGER NOT NULL
+		);
+
+	INSERT
+		INSERT INTO FLIGHTS
+			(origin, destination, duration) 		// specify columns to enter into
+			VALUES('New York', 'London', 415);		// specify values
+
+	SELECT
+		SELECT * FROM flights;
+
+		SELECT origin, destination FROM flights;
+
+		SELECT * FROM flights WHERE id = 3;
+
+		SELECT * FROM flights WHERE origin = 'New York';
+
+		SELECT * FROM flights WHERE duration > 500
+
+		SELECT * FROM flights WHERE desitnation = 'Paris' AND duration > 500
+
+		SELECT * FROM flights WHERE desitnation = 'Paris' OR duration > 500
+
+		Functions
+			SELECT AVG(duration) FROM flights;  //AVG = average
+			SELECT AVG(duration) FROM flights WHERE origin = 'New York';
+
+			SELECT COUNT(*) FROM flights;
+			SELECT COUNT(*) FROM flights WHERE origin = 'New York';
+
+			SELECT MIN(duration) FROM flights;
+			SELECT MAX(duration) FROM flights;
+
+		SELECT * FROM flights WHERE origin IN ('New York', 'Lima');  // IN lets you give range of values
+
+		SELECT * FROM flights WHERE origin LIKE '%a%';  // % are placeholders - can be any text
+
+		SELECT * FROM flights LIMIT 2; // only returns 2 rows. more useful if ordered
+		SELECT * FROM flights ORDER BY duration ASC;  // or DESC if want descending order
+		SELECT * FROM flights ORDER BY duration ASC LIMIT 3;
+
+		SELECT origin, COUNT(*) from flights GROUP BY origin;  // groups results by origin
+
+		SELECT origin, COUNT(*) FROM fligts GROUP BY origin HAVING COUNT(*) > 1  // having acts as select  for group by groups
+
+	UPDATE
+		UPDATE flights
+			SET duration = 430
+			WHERE origin = 'New York'
+			AND destination = 'London';
+
+	DELETE
+		DELETE FROM flights
+			WHERE destination = 'Tokyo';
+
+	FOREIGN KEYS
+		- used to connect multiple tables together
+
+	TABLE SET UP
+	locations
+		id 	code	name
+
+	flights
+		id	origin_id	destination_id duration
+
+	passengers
+		id	name	flight_id
+
+		CREATE TABE passengers(
+			id SERIAL PRIMARY KEY,
+			name VARCHAR NOT NULL,
+			flight_id INTEGER REFERNCES flights		// references assumes primary key
+
+	JOINS
+		// JOIN assumes INNER JOIN
+		SELECT origin, destination, name
+			FROM flights JOIN passengers
+				ON passengers.flight_id = flights.id
+			WHERE name = 'Alice';
+
+		//LEFT JOIN
+		take table on left (flights) and makes sure all rows in that table included even if no match to right table
+
+		//RIGHT JOIN
+		take table on right (passengers) and includes all rows even if no matches in left table
+
+	Indexes - add to particular column, allows quicker, easier access
+	Makes searching faster, but update and insert are slower
+	CREATE INDEX [index name] [table and column name]
+
+	Nested Queries
+	// get flight ids for flights with more than 1 passenger
+	SELECT flight_id FROM passengers
+	GROUP BY flight_id HAVING COUNT(*) > 1;
+
+	// get flight info for flights with more than 1 passenger
+	SELECT * FROM flights WHERE id IN
+	(SELECT flight_id FROM passengers
+	GROUP BY flight_id HAVING COUNT(*) > 1);
+
+Security Considerations using databases
+	SQL Injection
+		e.g. someone submitting SQL command from username password input
+		Want to sanitize input so not inputting directly into sql queries
+		SELECT * FROM users
+			WHERE (username = 'username')
+			AND (password = 'password')
+
+		Hacker attempt
+		SELECT * FROM users
+			WHERE (username = 'hacker')
+			AND (password = '1' or '1' = '1')  // bypasses password requirement
+
+	Race Conditions and SQL Transactions
+		Possibility that database accessed by multiple people
+		multiple directions executed in funky order
+		e.g. - joint bank account; both trying to make withdrawal at same time
+
+		Use SQL Transactions
+			Helps lock database until transaction complete
+			Syntax:
+				BEGIN
+					<SQL TO RUN>
+				COMMIT
+
+USING SQL IN WEB APPS
+	SQLAlchemy - library to connect python to SQL
+
+	list.py
+	import os
+	from sqlalchemy import create_engine
+	from sqlalchemy.orm import scoped_session, sessionmaker
+
+	engine = craete_engine(os.getenv("DATABASE_URL"))
+	db = scoped_session(sessionmaker(bind=engine))		//create different sessions of DB for different users
+
+	def main():
+		flights = db.execute("SELECT origin, destination, duration FROM flights").fetchall()
+		// fetchall query returns list of individual rows
+		for flight in flights:
+			print(f"{flight.origin} to {flight.destination}, {flight.duration} minutes.")
+
+	if __name__ == "__main__":
+		main()
+
+
+	Importing Data using Python (assume csv data)
+		(same first lines as before)
+		f = open("flights.csv")
+		reader = csv.reader(f)
+		for origin, destination, duration in reader:  //loop over rows in reader and name columns as indicated
+			db.execute("INSERT INTO flights (origin, destination, duration) VALUES (:origin, :destination, :duration)",		// crate placeholders
+				{"origin": origin, "destination": destination, "duration": duration})										// provide python dictionary filling in placeholders
+			print(f"Added flight from {origion} to {destination} lasting {duration})
+		db.commit()		// insert done as transaction so need to commit
+
+		(name==main line)
+
+		passengers.py - text based way to lookup data
+		// has multiple queiries - show flight datat then get passengers
+
+	Merge into flask application (airline0.py and airline1.py)
+		placeholder syntax will sanitize user input to prevent SQL Injection
+			so always better to use placeholder than directly joining strings together
+
+		to get flight infomration need to go to /flight/<intenger flight id>
+		html code:
+			{% for flight in flights %}
+				<a href="{{ url_for('flight', flight_id=flight.id) }}">  // this allows to pass variable to flight method
+					{{ flight.origin }} to {{ flight.destination }}  // display of link
+				</a>

@@ -1,0 +1,285 @@
+Python
+	hello.py
+	
+	print("Hello, World,")
+	
+	name.py
+	
+	name = input()  //input gets input from user and sets to variable name
+	print(f"hello, {name}!")  //f feature of python 3.6 - format fill in using variable
+	
+	types of variables:
+		integer //whole number
+		floating point number
+		boolean  // True False
+		None // like null; variable has no value
+		
+	conditions
+	
+	if x > 0:
+		print("x is positive")
+	elif x < 0:
+		print("x is negative")
+	else:
+		print("x is zero")
+		
+	sequences.py
+	
+	name = "Alice"  //string - sequence of character
+	coordinates = (10.0, 20.0)  // tuple - group two values together
+	names = ["Alice", "Bob", "Charlie"] // list - ordered sequence
+	
+	sequences accessed by name[index]  // name[0], coordinates[0], names[0]
+	// zero index like most programming languages
+	
+	loops
+	for i in range(5):
+		print(i)
+	// will print 0-4  // runs number of times in range
+
+	looping over sequence:
+	for name in names:
+		print(name)
+		
+	// sets - no item can be repeated.  Not ordered
+	s = set()
+	s.add(1)
+	s.add(3)
+	s.add(3)
+	print (s) // 1, 3
+	
+	//dictionaries - stores key-value pairs
+	ages = {"Alice": 22, "Bob": 27}
+	ages["Charlie"] = 30  // will add Charlie 30 to dictionary
+	ages["Alice"] += 1
+	
+	//functions.py
+	def square(x):				// declares function
+		return x * x			// function body - everything indented
+		
+	for i in range(10):
+		print("{} squared is {}".format(i, square(i)))  // different (older) way of plugging value in string
+		
+	function needs to be defined before use in file
+	
+	//Modules
+	from functions import square   // imports square function from functions.py
+	
+	print(square(10))
+	
+	any code not in a different function will also be runs
+	for example for loop in //function.py will also be runs
+	common fix is to put code you only want to run when functions.py is
+	run by itself in a function.  Typically called main()
+	then add:
+	if __name__ == "__main__":
+		main()
+		
+	this line says if function.py is being run, then run main, otherwise don't
+	
+	//classes
+	class Point:
+		def __init__(self, x, y):  // self always needed
+			self.x = x
+			self.y = y
+	
+	p = Point(3,5)
+	print(p.x)
+	print(p.y)
+	
+HTTP
+	- requests and responses sent to make internet work
+	- browser sends requests, server sends responses back
+	- we are dealing with server responses
+	
+Flask
+	- microframework written in python
+	
+	main file is application.py  //may need to set as environment variable
+	from flask import Flask
+	app = Flask(__name__)  // create new Flask web application
+	
+	@app.route("/")   // app.route - routes part of url. ties function to /
+	def index():
+		return "Hello World!"
+		
+	@app.route("/david")
+	def david():
+		return "Hello, David!"
+		
+	@app.route("/<stirng:name>")  // template for generalized set of pages.  when go to /[anystring] this will execute
+	
+	def hello(name):
+		name = name.capitalize()	//python function that capitalizes first letter of string
+		return f"<h1>hello, {name}!</h1>"	// can add html in
+		
+	Can add references to html pages
+	Can put html in directory at same level as application.py
+	from flask import Flask, render_template
+	app = Flask(__name__)  // create new Flask web application
+	
+	@app.route("/")   // app.route - routes part of url. ties function to /
+	def index():
+		return render_template("index.html")
+	
+	run flask app:
+		go to directory
+		flask run
+		
+	using variables in flask
+		
+	@app.route("/")
+	def index():
+		headline = "Hello, World"
+		return render_template("index.html", headline=headline) 	/give index.html knowledge of headline variable. Convention is to use same name
+		
+	@app.route("/bye")
+		headline = "Good bye"
+		return render_template("index.html", headline=headline) // can use same index.html template and just pass a different value for /bye
+	in index.html:
+		<h1>{{ headline }}</h1>
+		
+	Conditions
+	import datetime
+	...
+	@app.route("/")
+	def index():
+		now = datetime.datetime.now()
+		new_year = now.month == 1 and now.day == 1	//set boolean
+		return renduer_template("index.html", new_year=new_year)
+	
+	in index.html:
+	<body>
+		{% if new_year %}   // {%%} allows use of conditions
+			<h1>Yes! Happy New Year!</h1>
+		{% else %}
+			<h1>NO</h1>
+	</body>
+	
+	loops
+	@app.route("/")
+	def index():
+		names = ["Alice", "Bob", "Charlie"]
+		return render_template("index.html", names=names)
+		
+	in index.html
+	<body>
+		<ul>
+			{% for name in names %}
+				<li>{{ name }} </li>
+			{% endfor %}
+		</ul>
+	</body>
+	
+	linking using routes
+	@app.route("/")
+	def index():
+		return render_template("index.html")
+	
+	@app.route("/more")
+	def index():
+		return render_template("more.html")
+		
+	in index.html
+		<a href="{{ url_for('more') }}">See More...</a>  // link to url for more function
+		
+	in more.html
+		<a href="{{ url_for('index') }}">Index...</a> // link to url for index function
+		
+	template inheritance
+		same application.py functions as above for linking
+		
+	layout.html
+		<!DOCTYPE HTML>
+		<html>
+			<head>
+				<title>My Website</title>
+			</head>
+			<body>
+				<h1>{% block heading %}{% endblock %}</h1>  // defines variable setting
+				
+				{% block body %}		// defines body block variable
+				{% endblock %}
+			</body}
+		</html>
+	
+	index.html
+		{% extends "layout.html" %}
+		
+		{% block heading %}
+			First Page
+		{% endblock %}
+		
+		{% block body %}
+			<p>Index</p>
+			
+			<a href="{{ url_for('more') }}See more...</a>
+		{% endblock %}
+
+	Forms
+	from flask import Flask, render_template, requests
+	app = Flask(__name__)  
+	
+	@app.route("/")   
+	def index():
+		return render_template("index.html")
+		
+	@app.route("/hello", methods=["POST"])  // only accept request method post
+	def hello():
+		name = request.form.get("name")		// get name from form that was submitted with page request
+		return render_template("hello.html", name=name)
+		
+	index.html
+		<form action="{{ url_for('hello') }} method="post">  // what to do when form submitted.  Submit to hello function
+			<input type="text" name="name" placeholder="Enter Your Name">
+			<button>Submit</button>
+		</form>
+		
+	hello.html
+		Hello, {{ name }}!
+		
+	submitting information by get request will put parameters in url
+	submitting by post request will not
+	
+	Store information - sessions
+	Session - when log in to website, have access to session that is data specific to user session
+	Flask stores cookie so as long as server is running, it will maintain session state
+	
+	from flask import Flask, render_template, request, session
+	from flask_session import Session
+	
+	app = Flask(__name__)
+	
+	app.config["SESSION_PERMANENT"] = False
+	app.config["SESSION_TYPE"] = "filesystem"
+	Session(app)
+	
+	notes = []  //global variable - accessible by all users. not needed if using session variable as below
+	
+	@app.route("/", methods=["GET", "POST"])
+	def index():
+		if session.get("notes") is None:
+			session["notes"] = []  // create session variable only accessible to user for session - will store cookie so visit will keep notes
+		if request.method == "POST":
+			note = request.form.get("note")
+			notes.append(note) // replace with session["notes"].append[note] to use session variable
+			
+		
+		return render_template("index.html", notes)  // change notes to session["notes"] for session variable
+		
+	index.html
+	{% block body %}
+		<ul>
+			{% for note in notes %}
+				<li>{{ note }}</li>
+			{% endfor %}
+		</ul>
+		
+		<form action="{{ url_for('index') }}" method="post">
+			<input type="text" name="note" placeholder="Enter note here">
+			<button>Add Note</button>
+		</form>
+	{% endblock %}
+	
+	Web server is storing notes, so as long as server is running, list will be maintained
+	

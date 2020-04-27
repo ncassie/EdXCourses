@@ -1,0 +1,368 @@
+FOR PROJECT 1 - use SQL syntax, not ORM syntax
+Object Oriented Programming
+
+	class Flight:
+
+		counter = 1  	// this variable will be available to all class objects
+
+		// methods generally have self as first method
+		def __init__(self, origin, destination, duratio):
+
+			# give flight id number
+			self.id = Flight.counter
+			Flight.counter += 1
+
+			# passenger list
+			self.passenters = []
+
+			self.origin = origin
+			self.destination = destination
+			self.duration = duration
+
+		def print_info(self):
+			print(f"Flight origin: {self.origin}")
+			print(f"Flight destination: {self.destination}")
+			print(f"Flight duration: {self.duration}")
+
+			print() # print blank line
+			print("Passengers:")
+			for passener in self.passengers:
+				print(f"{passenger.name}")
+
+		def delay(self, amount):
+			self.duration += amount
+
+		def add_passenger(self, p)
+			self.passengers.append(p)
+			p.flight_id = self.id		#how does this work if passenger class doesn't have an id
+
+	class Passenger:
+
+		def __init__(self, name):
+			self.name = name
+
+	def main():
+		//parameter names optional, but if specify, can put in any order
+		f = Flight(origin="New York", destination="Paris", duration=540)
+
+		f.duration += 10
+
+		f.delay(10)
+
+		alice = Passenger(name="Alice")
+		bob = Passenger(name="Bob")
+
+		f.add_passenger(alice)
+		f.add_passenger(bob)
+
+		print(f.origin)
+		print(f.destination)
+		print(f.duration)
+
+		f.print_info()
+
+	if __name__ == "__main__"
+		main()
+
+ORMS - Object Relational Mapping
+
+	Way to tie together python objects and relational databases
+
+	use Flask-SQLAlchemy package
+	for each table in database, have a class associated with it
+	can use class objects to interact with databases
+		e.g., update to object automatically updates database
+
+	models.py  # contains all classes for all database tables
+							# this basically takes over creating tables in SQL
+
+	from flask_sqlalchemy import SQLAlchemy
+
+	db = SQLAlchemy()
+
+	class Flight(db.Model):
+		__tablename__ = "flights"
+		id = dbColumn(db.Integer, primary_key=True)
+		origin = db.Column(db.String, nullable=False)
+		destination = db.Column(db.String, nullable=False)
+		duration = db.Column(db.Integer, nullable=False)
+
+	class Passenger(db.Model):
+		__tablename__ = "passengers"
+		id = db.Column(db.Integer, primary_key=True)
+		name = db.Column(db.String, nullable=False)
+		flight_id = db.Column(db.Integer, db.ForeignKey("flights.id"), nullable=False)
+
+	create.py # create the tables from model.py
+
+	import os
+
+	from flask import Flask, render_template, request
+	from models import *  # import all classes from models
+
+	# configure database
+	app = Flask(__name__)
+	app.config["SQLALCHEMY_DATABASE_URI"] = osgetenv("DATABASE_URL")
+	app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+	db.init_app(app)
+
+	def main():
+		db.create_all()  # this is what creates tables
+
+	if __name__ == "__main__":
+		with app.app_context():  # need this for command line execution
+			main()
+--End of create.py---
+
+	INSERT INTO FLIGHTS
+		(origin, destination, duration)
+		VALUES('New York', 'Paris', 540)
+
+	In SQLAlchemy this is:
+	flight = Flight(origin="New York", destination="Paris", duration=540)
+	db.session.add(flight) # flask_sqlalchemy does session automatically
+
+	SELECT * FROM flights; in SQLAlchemy is:
+		SLQAlchemy adds query method to classes
+		flights = Flight.query.all()  # gives list of Flights you can iterate over
+	Select * FROM flights WHERE origin = 'Paris'; becomes:
+		Flight.query.filter_by(origin="Paris").all()
+
+	import0.py - imports data from csv - look at file; same as last import file
+	how to import using flask_sqlalchemy -import1.py:
+	def main():
+		f = open("flights.csv")
+		reader = csv.reader(f)
+		for origin, destination, duration in reader:
+			flight = Flight(origin=origin, destination=destination, duration=duration)
+			db.session.add(flight)
+			print(f"Added flight from {origin} to {destination} lasting {duration} minutes")
+		db.session.commit()
+
+	__end of import.py__
+  # get only 1 result
+	SELECT * FROM flights WHERE origin = 'Paris' LIMIT 1;
+		flight = Flight.query.filter_by(origin="Paris").first()
+								Flight.query.filter_by(origin="Paris").count() - will give count
+
+	SELECT * FROM flights WHERE id = 28;
+	Flight.query.filter_by(id=28).first() or:
+	Flight.query.get(28) # more efficient way to do it. Queries on index
+
+	UPDATE flights SET duration = 280 WHERE id = 6
+	flight = Flight.query.get(6)
+	flight.duration = 280
+	# will need to commit changes at end
+
+	DELETE FROM flights WHERE id = 28;
+
+	flight = Flight.query.get(28)
+	db.session.delete(flight)
+
+	Done making changes, need to COMMIT:
+	db.session.commit()
+
+	Flight.query.order_by(Flight.origin).all()
+											(Flight.origin.desc())
+
+	Flight.query.filter(Flight.origin != "Paris").all()
+
+	###### use.filter for more advanced queries (see slides)########
+
+	Joining tables
+		SELECT * FROM flights JOIN passengers ON flights.id = passengers.flight_id;
+		db.session.query(Flight, Passenger).filter(Flight.id == Passenger.Flight_id).all()
+
+	AIRLINE WEBSITE EXAMPLE UPGRADE
+	airline1.py (example from last lecture)
+	airline2.py - upgrade of this (see code)
+		No raw sql in code. Can just use sqlalchemy
+
+	airline3 - models.py
+		class Flight(db.Model):
+		  ## see above for rest of this class ##
+			## New method ##
+			def add_passenger(self, name):
+				p = Passenger(name=name, flight_id=self.id)
+				db.session.add(p)
+				db.session.commit()
+
+			application.py can then call flight.add_passenger(name)
+
+	Relationships (in SQLAlchemy)
+		let's table relate to each other
+		airline4
+
+		class Flight(db.Model):
+			__tablename__ = "flights"
+			id = dbColumn(db.Integer, primary_key=True)
+			origin = db.Column(db.String, nullable=False)
+			destination = db.Column(db.String, nullable=False)
+			duration = db.Column(db.Integer, nullable=False)
+			passengers = db.relationship("Passenger", backref="flight", lazy=True) #only exists in python code, not db
+			# lazy - only fetches information when called for in code
+			# lets you get passengers for flight and flight for passenger:
+			instead of:
+				passengers = Passenger.query.filter_by(flight_id=flight_id).all()
+			can do:
+				passengers = flight.passengers
+
+				SELECT *FROM passengers WHERE flight_id = 1;
+				becomes:
+					Flight.query.get(1).passengers
+
+			SELECT * FROM flights JOIN passengers
+				ON flights.id = passengers.flight_id
+				WHERE passengers.name = 'Alice';
+			becomes:
+				Passenger.query.filter_by(name='Alice').first().flight
+
+APIs
+	Protocols for communicating between different programs or
+		different components of same web application
+
+	JSON - standard language for communication
+		simple way to represent information
+		Easy to read by computer and humans
+
+	flight information can be represented in JSON as JSON Object:
+	JSON object has key-value pairs
+		{
+			"origin": "Tokyo",
+			"destination": "Shanghai",
+			"duration": 185
+		}
+		can wrap other objects:
+		{
+			"origin": "Tokyo",
+			"destination": "Shanghai",
+			"duration": 185
+			"passengers": ["Alice", "Bob"]
+		}
+		passengers is a list
+
+		Can add more sophisticated data and nested objects,
+		origin and destination themselves are JSON objects
+		{
+			"origin": {
+				"city": "Tokyo",
+				"code": "HND",
+			},
+			"destination": {
+				"Shanghai",
+				"code": "PVG"
+			},
+			"duration": 185
+			"passengers": ["Alice", "Bob"]
+		}
+
+		Usually URL is way to interact. Specify which information you want to access:
+		Use nested urls to get different levels of information
+			/flights/
+			/flights/28
+			/flights/28/passengers/
+			/flights/28/passengers/6
+
+	HTTP request Methods - conventionally used to perform actions:
+		GET: retrieve resource
+		POST: create a new resource
+		PUT: replace a resource
+		PATCH: update a resource
+		DELETE: delete a resource
+
+		python requests library makes it easy to make HTTP requests
+		google.py
+
+		import requests
+
+		def main():
+			# res short for request
+			res = requests.get("https://www.google.com")
+			print(res.text)
+
+		if __name__ == "__main__":
+			main()
+
+		##end google.py ##
+		python request Methods
+			request.get(url)
+			request.post(url)
+			request.put(url)
+			request.patch(url)
+			request.delete(url)
+
+		fixer.io - exchange rates api
+		import requests
+		JSON return from this request:
+		{"base":"USD", "date":"2018-02-26", "rates":{"EUR":0.81169}}
+		def main():
+			res = requests.get("https://api.fixer.io/latest?base=USD&symbols=EUR")
+			if res.status_code != 200
+				raise Exception("ERROR: API request unsuccessful")
+			data = res.json()  # take result from request and extract as json
+			print(data)
+
+		if __name__ == "__main__":
+				main()
+
+		HTTP Status Codes (common codes, others exist)
+			200 - ok
+			201 - created
+			400 - bad request
+			403 - forbidden
+			404 - not found
+			405 - method not allowed
+			422 - unprocessable entity
+
+			def main():
+				res = requests.get("https://api.fixer.io/latest?base=USD&symbols=EUR")
+				if res.status_code != 200
+					raise Exception("ERROR: API request unsuccessful")
+				data = res.json()  # take result from request and extract as json
+				rate = data["rates"]["EUR"]
+				print(f"1 USD is equal to {rate} EUR")
+
+			if __name__ == "__main__":
+					main()
+
+			def main():
+				base = input("First currency: ")
+				other = input("Second Currency")
+				res = requests.get("https://api.fixer.io/latest",
+														params={"base": base, "symbols": other})
+				if res.status_code != 200
+					raise Exception("ERROR: API request unsuccessful")
+				data = res.json()  # take result from request and extract as json
+				rate = data["rates"][other]
+				print(f"1 {base} is equal to {rate} {other}")
+
+	 DESIGN OWN APIs
+	 airline5
+	 applicaiton.py - flight api method
+	 need:
+	 from flask import jsonify
+	 app.route("/api/fligts/<int:flight_id>")
+	 def flight_api(flight_id)
+	 #returns deails about a single flight
+
+	 # make sure flight exists
+	 flight = Flight.query.get(flight_id)
+	 #jsonify will take dictionary and convert to appropriate JSON
+	 if flight is None:
+	 	return jsonify({"error": "Invalid flight_id"}), 422
+
+		#get all Passengers
+		passengers = flight.passengers
+		names = []
+		for passenger in passengers:
+			names.append(passenger.name)
+		return jsonify({
+			"origin": flight.origin,
+			destination": flight.destination,
+			"duration": flight.duration,
+			"passengers:" names
+		})
+
+API KEYS
+	way to restrict access and track routes, limit people
+	Can keep track for requests in database and limit that way

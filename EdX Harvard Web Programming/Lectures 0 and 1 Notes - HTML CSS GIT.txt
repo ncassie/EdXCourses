@@ -1,0 +1,403 @@
+Harvard EdX - Web Development Course Notes
+
+Git Commands
+
+	git clone [url] - copies and downloads directory at url
+	git add [file] - adds file to next commit
+	git commit -m [message] - commits all added files
+	git status - gets status of repository
+	git push - pushes changes to remote server
+	git pull - pulls latest changes from server to computer
+	git log - shows history of all commits
+	git reset --hard <commit>
+			  --hard origin/master		Both reset repository to specified version
+			  
+	Branching
+		Can take project in different directions
+		implement new features in parallel, then merge them in
+		git branch  // shows branches
+		git branch [newBranchName] // creates new branch
+		git checkout [newBranchName] // moves head to new Branch so you can work in that branch
+		
+		to merge together - go to main branch
+		git merge [newBranchName]
+		
+	Remotes
+		- can have copy of repository elsewhere (like GitHub)
+		git fetch - go to remote repository and get latest versions
+		git merge origin/master - merges latest local and master versions
+		git pull does this automatically
+		
+	Forks (GitHub specific functionality)
+		Seperate version of repository
+		Pull request - ask that your changes in your fork be merged. Good easy way to get feedback
+		Do this through GitHub website
+		
+			  
+	Git Hub Pages
+		Allows you to post html files
+			Settings
+				GitHubPages
+					Deploy from Master Branch (or whatever branch you want to deploy from)
+			  
+HTML
+	<!DOCTYPE html> // first line - indicates html5
+	<html>
+		<head>  // usually contains meta data about site, including title
+			<title>My Web Page!</title>
+		</head>
+		<body>
+			<h1>Hello World!</h1>   // biggest heading
+			<h2></h2>
+			<h3></h3>
+			<h4></h4>
+			<h5></h5>
+			<h6></h6>	// smallest heading
+			
+			<!-- LISTS -->
+			<ul> <!-- unordered list -- uses bullets>
+				<li>item one</li>
+				<li> item two</li>
+			</ul>
+			
+			<ol> <!-- ordered list -- uses numbers>
+				<li> first item</li>
+			</ol>
+			
+			<img src="cat.jpg">  <!-- no closing tag required. src is an attribute-->
+			<img src="cat.jpg" height="200" width="300"> 	<!-- with no height or width, renders at full resolution. 
+															<!--Can only specify one if desired and browswer will render appropriately-->
+															<!-- can also specify percentage of browser:  width="50%" -->
+			
+			<!-- TABLES -->
+			<table>
+				<tr>
+					<th>First Name</th>  <!--table headers-->
+					<th>Last Name</th>
+					<th>Years in Office</th>
+				</tr>
+				<tr>
+					<td>George</td>
+					<td>Washington</td>
+					<td>1789-1797</td>
+				</tr>
+			</table>
+			
+			<p>Paragraph</p>
+			
+			<!-- FORMS -->
+			<form>  <!-- doesn't do anything because no functionality specified-->
+				<input type="text" placeholder="Full Name" name="name">  <!-- name="name" gives name to textfield>
+				<button>Submit!</button>
+			</form>
+			
+			<form>
+				<div>
+					<input name="name" type="text" placeholder="Name">
+					<input name="password" type="password" placeholder="Password">
+					<input name="age" type="number" placeholder="Age">
+				</div>
+				<div>
+					Favorite color?
+					<input name="color" type="radio" value="red">Red
+					<input name="color" type="radio" value="green">Green
+					<input name="color" type="radio" value="blue">Blue
+					<input name="color" type="radio" value="other">other
+				</div>
+				
+				<div>
+					<input name="country" list="countries" placeholder="Country">
+					<datalist id="countries">
+						<option value="United Kingdom">
+						<option value="United States">
+					</datalist>
+			</form>
+				
+			
+			<!-- LINKS -->
+			<a href="hello.html">Click here</a>
+			
+			<!-- Link to section on same page -->
+			<a href="#section1">Go to Section 1</a>
+			<h2 id="section1">Section 1</h2>
+			
+		</body>
+	</html>
+	
+	<!-- HTML 5 tabs. Can use instead of div for these items>
+		<header>
+		<nav>
+		<section>
+		<footer>
+		<audio>
+		<video>
+		<datalist>
+	
+	
+	Document Object Model - Tree representation of HTML Page
+	
+CSS
+	<!DOCTYPE HTML>
+	<html>
+		<head>
+			<title>My Page</title>
+			<link rel="stylesheet" href="styles.css">
+		</head>
+		<body>
+			<div id="top">  <!-- div and span just give way to name to text. Can use name for formatting. Both can be used anywhere.  Id must be unique. Deepest element wins conflict -->
+				This is the <span class="name">top</span> of my web page.
+			</div>
+		</body>
+		
+	</html>
+	
+	css selectors - let you select  specific parts of website to style
+	
+	styles.css - examples of common formatting tags
+	h1{
+		color:blue;
+		text-align: center;
+	}
+	
+	p{
+		color:red;
+	}
+	
+	<!-- div is a division of code/format -->
+	div{
+		background=color: teal;
+		width: 100px;
+		height: 400px;
+		margin: 30px;  <!-- margin of outside edges of box -->
+		padding: 20px;     <!-- how far in text will be from edge of div-->
+		
+		font-family: Arial, sans-serif;
+		font-size: 28px;
+		font-weight: bold;
+		
+		border: 3px solid blue;
+	}
+	
+	th,td{  <!-- can apply same styles to different elements at once -->
+	border: 1px solid black;
+	}
+	
+	table{
+		border-colapes: collapse;
+	}
+	
+	#top{  <!-- # lets you format ids from divs, spans, and other id'd elements -->
+		font-size: 36px;
+	}
+	
+	.name { <!-- . lets yo get to classes in element attributes -->
+		font-weight: bold;
+	}
+	
+	<!-- Style all li in ol, including sublist items-->
+	ol li{
+		color:red
+	}
+	
+	<!-- styles immediate children, not sub-items-->
+	ol > li{
+		color: red;
+	}
+	
+	input[type=text]{
+		background-color:red;
+	}
+	
+	input[type=number]{
+		background-color: yellow;
+	}
+	
+	button{
+		width: 200px;
+		height: 50px;
+		font-size: 24px;
+		background-color: green;
+	}
+	
+	<!-- Pseudo-class - alters based on action changes button color when user hovers over -->
+	button:hover{
+		background-color: orange;
+	}
+	
+	<!-- pseudo-element - before contents of actual link -->
+	a::before{
+		content: "\21d2 Click here: ";  //prepends link with this line. \21d2 is an arrow
+		font-weight: bold;
+	}
+	
+	<!-- changes state when selected -->
+	p::selection{
+		color: red;
+		background-color: yellow;
+	}
+	
+Responsive Design - ensure design for mobile, desktop, etc.
+	viewport
+	Media Queries
+	Flexbox
+	Grids
+	
+	Media Queries - allows you to set styling based on screen (mobile, desktop, printing, etc).
+	<style>
+		@media print{
+			.screen-only{
+				display: none;  // will only show on screens. Set so won't print.
+			}
+	</style>
+	<body>
+		<p>P1</p>
+		<p>P2</p>
+		<p class="screen-only">P2</p>
+	</body>
+	
+	Ex. 2 - adjusts for different screen sizes
+	<title>My Page</title>
+	<!-- allows good sizing for mobile -->
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<style>
+		@media(min-width: 500px){  // styling for when window more than 500px wide
+			body{
+				background-color: red;
+				h1::before{
+					content: "Welcome to my web page!";
+				}
+			}
+		}
+		
+		@media(max-width: 499px){  // styling for when window less than 500px wide
+			body{
+				background-color: blue;
+				h1::before{
+					content: "Welcome!";
+				}	
+			}
+		}
+		
+		<!-- flex boxes - will rearrange boxes based on width of screen -->
+		.container{
+			display: flex;
+			flex-wrap: wrap;
+		}
+		
+		.container > div {
+			background-color: springgreen;
+			font-size: 20px;
+			margin: 20px;
+			padding: 20px;
+			width: 200px;
+		}
+		
+		.grid{
+			background-color: green;
+			display: grid;
+			padding: 20px;
+			grid-column-gap: 20px;
+			grid-row-gap: 10px;
+			grid-template-columns: 200px 200px auto;
+		}
+		
+		.grid-item{
+			background-color: white;
+			font-size: 20px;
+		}
+	</style>
+		
+	<body>
+		<h1></h1>
+		
+		<!-- flexbox boxes -->
+		<div class="container">
+			<div>A. Loren ipsum</div>
+			<div>B. Loren ipsum</div>
+			<div>C. Loren ipsum</div>
+			<div>D. Loren ipsum</div>
+		</div>
+		
+		<div class="grid">
+			<div class="grid-item">1</div>
+			<div class="grid-item">2</div>
+			<div class="grid-item">3</div>
+		</div>	
+	</body>
+
+Sass
+	<!-- can use variable in css using Sass-->
+	use extension .scss instead of .css
+	Needs to be converted to .css file using sass
+	Command line:
+		sass variables.scss variables.css
+		
+		sass --watch variables.scss-variables.css <!-- this line lets you make changes and not have to recompile -->
+	Deployment tools, like GitHub pages will compile once scss is uploaded
+	
+	Example file:
+	
+	$color: red;
+	
+	ul{
+		font-size: 14px;
+		color: $color;
+	}
+	
+	ol{
+		font-size: 18px;
+		color: $color;
+	}
+	
+	can nest selectors and set heirarchies
+	
+	div{
+		font-size: 18px;
+		
+		p{
+			color:blue:
+		}
+		
+		ul{
+			color: green;
+		}
+	}
+	
+	allows inheritance
+	%message{
+		font-family: sans-serif;
+		font-size: 18px;
+		font-weight: bold;
+		border: 1px solid black;
+		padding: 20px;
+		margin: 20px;
+	}
+	
+	.success{
+		@extend %message;
+		background-color: green;
+	}
+	
+	.warning{
+		@extend %message;
+		background-color: orange;
+	}
+	
+	
+	
+Bootstrap
+	designed to be mobile responsive off bat, but can still do better
+	link bootstrap website using line from bootstrap site
+	bootstrap uses columns = each row of website is 12 columns. can set items to desired # of columns
+	<div class="row">
+		<div class="col-3">  // this will take up 3 columns
+			this is a section
+		</div>
+	</div>
+	
+	<div class="row">
+		<div class="col-lg-3 col-sm-6">  //on big screens, it will take up 3 cols, on small screen will be 6
+			This is a section			// helps move cols to new row on smaller screen, like flexboxes
+		</div>
+	</div>
+	
