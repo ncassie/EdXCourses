@@ -1,0 +1,64 @@
+Search
+  Agent is in situation and want to figure out how to get program to look for solution
+
+  Terminology
+    agent - entity that perceives its environment and acts upon that environment
+    state - a configuration of the agent and its environment
+    initial state - the state in which the agent begins
+    actions - choice that can be made in a state
+      can be defined as a function:
+        ACTIONS(s) returns the set of actions that can be executed in state s
+    transition model - a description of what state results from performing any applicable action in any state
+      RESULTS(s, a) returns the  state resulting from performing action a in state s
+    state space - the set of all states reachable from the initial state by any sequence of actions
+      typically represented as a graph (nodes represent states, edges represent action that can be taken)
+    goal test - way to determine whether a given state is a goal state
+    path cost - numerical cost associated with a given path
+
+  Search Problems
+    - initial state
+    - actions
+    - transition model
+    - goal test
+    - path cost function
+
+  solution - a sequence of actions that leads from the initial state to the goal state
+  optimal solution - solution with lowest path cost among all solutions
+
+  node - data structure that keeps track of a state, a parent (a node that generated this node),
+    an action(action applied to parent to get node), a path cost (from initial state to node)
+
+  frontier - data structure that stores all available options that haven't been explored yet
+
+  Approach -
+  start with a frontier that contains the initial state
+  Repeat:
+    if frontier empty - no solution
+    Remove a node from frontier
+    if node contains goal state, return the solution
+    Expand node, add resulting nodes to the frontier
+      expand node means to look at all neighbors of node. Consider all possible actions
+      that can be taken from current state and what nodes can you get to
+
+    cycles can cause an issue with this approach if not careful
+      if keep track of what already explored, then can solve this
+
+    Revised approach:
+    Start with a frontier that contains the initial state
+    Start with an empty explored set
+    Repeat:
+      if frontier empty - no solution
+      Remove a node from frontier
+      if node contains goal state, return the solution
+      Add node to explored set
+      Expand node, add resulting nodes to the frontier if they aren't already in frontier or
+        the explored set
+
+    Removing node from frontier - important how to choose
+      stack - LIFO data type - may need to go deep into search tree to get to end of branch with no result
+        - this is depth first search - search algorithm that always expands the deepest node in the frontier
+      Breadth-First Search - search algorithm that always expand the shallowest node in the frontier
+        uses queue - FIFO data type.  Looks at all node on a level of tree before exploring deeper in tree
+
+    Depth first search will always find a solution if the set is finite, but maybe not the optimal solution
+    breadth-first search is more likely to find optimal path, but may explore more nodes
