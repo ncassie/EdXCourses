@@ -61,4 +61,102 @@ Search
         uses queue - FIFO data type.  Looks at all node on a level of tree before exploring deeper in tree
 
     Depth first search will always find a solution if the set is finite, but maybe not the optimal solution
-    breadth-first search is more likely to find optimal path, but may explore more nodes
+    breadth-first search is more likely to find optimal path, but may explore more nodes. Sometimes DFS will explore more
+
+    Code
+      maze.py
+      # in python if index into list with -1 will get last element in list
+
+    In certain circumstances, BFS will explore almost all (if not all) nodes. Want algorithm to be more intelligent
+    Can make it more intelligent if know coordinates of all nodes, start state and end states
+
+    uninformed search - search strategy that uses no problem-specific knowledge (like BFS and DFS)
+    informed search - search strategy that uses problem-specific knowledge to find solutions more efficiently
+
+Informed Searches
+  greedy best-first search (GBFS) - search algorithm that expands the node that is closest to the goal, as estimated
+    by a heuristic function h(n)
+
+    Manhattan distance - how many steps vertically and horizontally (not diagonal) are needed to get to goal (in maze, ignore wall)
+      -remember, its just an estimation, so might be wrong
+    using GBFS with Manhattan Distance might not always find optimal solution
+    Greedy algorithms make best decision at time, not necessarily best overall
+
+  A* Search - search algorithm that expands node with lowest value of g(n) + h(n)
+    g(n) = cost to reach node
+    h(n) = estimated cost to goal
+
+    A* is optimal if:
+      - h(n) is admissible (never overestimates the true cost), and
+      - h(n) is consistent (for every node n and successor n' with stop cost c, h(n) <= h(n') + c)
+      - has tendency to use a lot of memory
+
+  lots of other algorithms optimized for other problems
+   Choosing heuristic can be interesting challenge
+
+Adversarial Search
+  agent trying to succeed and a different agent trying to get it to fail
+  - popular in games, like tic tac toe
+
+  Minimax algorithm
+    possible outcomes for tic tac toe
+      -1 = O wins
+      0 =  no one wins
+      1 = X wins
+
+  X player is max player
+  O player is min player
+
+  MAX(X) aims to maximize score (get to 1, or 0)
+  MIN(X) aims to minimize score (get to -1, or 0)
+
+  Game:
+    S0: initial state
+    PLAYER(s): returns which player to move in state s
+    ACTION(s): return legal moves in state s
+    RESULT(s, a): returns state after action a is taken in state s
+    TERMINAL(s): checks if sate s is a terminal (ending) state
+    UTILITY(s): final numerical value for terminal state s
+
+  Minimax is recursive algorithm
+    tree of states and trying to figure out optimal path
+    represented as tree
+      arrow facing up - player trying to maximize
+      arrow facing down - player trying to minimize
+
+  Minimax pseudocode
+    Given a state s:
+      MAX picks action a in ACTION(s) that produces highest value of MIN-VALUE(RESULT(s, a))
+      MIN picks action a in ACTION(S) that produces smallest value in MAX_VALUE(RESULT(s, a))
+      function MAX-VALUE(state):
+        if TERMINAL(state):
+          return UTILITY(state)
+        v = -infinity #trying to get max value so start as low as possible and try to do better
+        for action in ACTIONS(state):
+          v = MAX(v, MIN-VALUE(RESULT(state, action)))
+        return v
+
+      function MIN-VALUE(state):
+        if TERMINAL(state):
+          return UTILITY(state)
+        v = infinity #trying to get maximum value so start as high as possible and try to do better
+        for action in ACTIONS(state):
+          v = MIN(v, MAX-VALUE(RESULT(state, action)))
+        return v
+
+  How can we optimize this for larger games
+          Alpha-Beta Pruning
+            - keep track of best and worst you can do so far
+             - if certain branch will give score worse than you can do so far, than prune that branch and
+                don't consider it anymore
+
+    Regular minimax will fall apart for complex games, like chess
+        too many possible moves to calculate all of them in a reasonable amount of time
+
+Depth-Limited Minimax
+  after a certain number of moves ahead, algorithm will stop
+  so only considers a certain number of moves
+  how do we assign score for value at this point if game is not yet over
+
+  evaluation function - function that estimates the expected utility of the game from a given state
+    how good this function is will determine how good the AI is
