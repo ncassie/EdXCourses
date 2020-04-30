@@ -1,0 +1,113 @@
+C - Programming language
+CS50 - Sandbox
+  - sandbox automatically saves
+  - use for first weeks of Programming
+  - compiler command:
+    clang hello.c
+    clang -o hello hello.c // to change output file name
+    clang -o string string.c -lcs50  // link to CS50 to use header functions
+
+    or use:
+    make string  // use this to compile, will take care of all compiler needed
+                  // should use same name as .c file
+
+  - run command:
+    ./a.out
+
+  #include <cs50.h>  // need this to be able to use strings for now
+  #include <stdio.h>
+
+  int main(void)
+  {
+      // no new line included with printf
+      printf("Hello, world");
+
+      // \n for new line
+      printf("Hello, world\n");
+
+      string answer = get_string("What's your name?\n");
+      printf("hello, %s\n", answer);
+
+      //variables
+      int counter = 0;
+      counter = counter + 1;
+      counter += 1;
+      counter++;
+
+      if (x < y)
+      {
+        // code
+      }
+      else if (x == y)
+      {
+        // code
+      }
+      else
+      {
+        // code
+      }
+
+      while (true)
+      {
+        // code
+      }
+
+      for(int i = 0; i < 50; i++)
+      {
+        //code
+      }
+
+      // types of variables
+      bool
+      char  // need to be in single quotes
+      double
+      float
+      int
+      long
+      string
+
+      // cs50 library
+      get_[primitive types]  // will prompt user for specified primitive type
+
+      place holders for strings
+      %c  // char
+      %f  // floats, doubles
+      %i  // int
+      %li  // long
+      %s  //string
+
+      // arithmetic:  + - * / %
+      ||  - logical OR
+      &&  - logical AND
+  }
+
+  PROGRAM 2 - shows how to make function
+  C only knows what you tell it from top to bottom
+  convention - main at top
+
+  #include <stdio.h>
+
+  // declare function here and implement later.  Called prototype
+  // this allows you to put functions later in file, e.g. after main here
+  void cough(void);
+
+  int main(void)
+  {
+    cough();
+  }
+  
+  void cough(void)
+  {
+    printf("cough\n");
+  }
+
+  int get_positive_int(void)
+  {
+    int n;
+    do
+    {
+      n = get_int("Postivie Integer: ");
+    }
+    while (n < 1);
+    return n;
+  }
