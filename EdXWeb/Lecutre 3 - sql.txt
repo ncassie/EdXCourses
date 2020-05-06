@@ -96,7 +96,7 @@ SQL (using POSTRGRESQL)
 		CREATE TABE passengers(
 			id SERIAL PRIMARY KEY,
 			name VARCHAR NOT NULL,
-			flight_id INTEGER REFERNCES flights		// references assumes primary key
+			flight_id INTEGER REFERENCES flights		// references assumes primary key
 
 	JOINS
 		// JOIN assumes INNER JOIN
@@ -190,7 +190,7 @@ USING SQL IN WEB APPS
 		placeholder syntax will sanitize user input to prevent SQL Injection
 			so always better to use placeholder than directly joining strings together
 
-		to get flight infomration need to go to /flight/<intenger flight id>
+		to get flight infomration need to go to /flight/<integer flight id>
 		html code:
 			{% for flight in flights %}
 				<a href="{{ url_for('flight', flight_id=flight.id) }}">  // this allows to pass variable to flight method

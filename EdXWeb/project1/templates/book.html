@@ -1,0 +1,89 @@
+{% extends "loginlayout.html" %}
+
+{% block title %}
+Book Information
+{% endblock %}
+
+{% block body %}
+
+  {{ message }}
+  <h3 style="text-align:center">{{ book.title }}</h3>
+  <h4 style="text-align:center">By {{ book.author }}</h4>
+
+  <table style="border: 2px solid lavender; border-collapse: collapse; margin-left:auto; margin-right:auto">
+    <th style="border: 1px solid lavender; border-collapse: collapse; padding: 5px;">Published In</th>
+    <th style="border: 1px solid lavender; border-collapse: collapse; padding: 5px;">ISBN Number</th>
+
+    <tr style="border: 1px solid lavender; border-collapse: collapse; padding: 5px;">
+      <td style="border: 1px solid lavender; border-collapse: collapse; padding: 5px;">{{ book.publication_year }}</td>
+      <td style="border: 1px solid lavender; border-collapse: collapse; padding: 5px;">{{ book.isbn }}</td>
+    </tr>
+  </table>
+
+  <p></p>
+  <p></p>
+  <p></p>
+
+  <h5>Goodreads Rating Information</h5>
+  <table style="border: 2px solid lavender; border-collapse: collapse;">
+    <th style="border: 1px solid lavender; border-collapse: collapse; padding: 5px;">Average Rating</th>
+    <th style="border: 1px solid lavender; border-collapse: collapse; padding: 5px;">Number of Ratings</th>
+
+    <tr style="border: 1px solid lavender; border-collapse: collapse; padding: 5px;">
+      <td style="border: 1px solid lavender; border-collapse: collapse; padding: 5px;">{{ averageRating }}</td>
+      <td style="border: 1px solid lavender; border-collapse: collapse; padding: 5px;">{{ numRatings }}</td>
+    </tr>
+  </table>
+
+  <p></p>
+  <p></p>
+  <p></p>
+
+  <h5>The Book Review User Reviews</h5>
+  <table style="border: 2px solid lavender; border-collapse: collapse;">
+    <th style="border: 1px solid lavender; border-collapse: collapse; padding: 5px;">Book Rating</th>
+    <th style="border: 1px solid lavender; border-collapse: collapse; padding: 5px;">Review</th>
+
+    {% for review in reviews %}
+
+      <tr style="border: 1px solid lavender; border-collapse: collapse; padding: 5px;">
+        <td style="border: 1px solid lavender; border-collapse: collapse; padding: 5px;">{{ review.rating }}</td>
+        <td style="border: 1px solid lavender; border-collapse: collapse; padding: 5px;">{{ review.review_text}}</td>
+      </tr>
+    {% endfor %}
+
+  </table>
+
+  <p></p>
+  <p></p>
+  <p></p>
+  <h5>Leave your own review</h5>
+  <form action="{{ url_for('reviewsubmitted') }}" method="post">
+  <table style="border: 2px solid lavender; border-collapse: collapse;">
+    <th style="border: 1px solid lavender; border-collapse: collapse; padding: 5px;">Select A Rating</th>
+    <th style="border: 1px solid lavender; border-collapse: collapse; padding: 5px;">Enter A Review</th>
+
+    <tr style="border: 1px solid lavender; border-collapse: collapse; padding: 5px;">
+      <td style="border: 1px solid lavender; border-collapse: collapse; padding: 5px;">
+        <select name="rating">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+        </select>
+      </td>
+      <td style="border: 1px solid lavender; border-collapse: collapse; padding: 5px;">
+        <textarea style="width:325px" id="reviewText" name="reviewText" rows="5"></textarea>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2" align="center">
+        <button class="btn btn-primary">Submit Review</button>
+      </td>
+    </tr>
+  </table>
+  <input id="bookId" name="bookId" type="hidden" value={{book.id}}>
+  </form>
+
+{% endblock %}

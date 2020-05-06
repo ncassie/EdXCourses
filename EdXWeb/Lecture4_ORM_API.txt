@@ -314,8 +314,8 @@ APIs
 			405 - method not allowed
 			422 - unprocessable entity
 
-			def main():
 				res = requests.get("https://api.fixer.io/latest?base=USD&symbols=EUR")
+				def main():
 				if res.status_code != 200
 					raise Exception("ERROR: API request unsuccessful")
 				data = res.json()  # take result from request and extract as json

@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Registration
+{% endblock %}
+
+{% block body %}
+    <h2 style="text-align:center">Account Registration</h2>
+
+    <h4 style="color:gray">{{ message }}</h4>
+
+    <form action="{{ url_for('registered') }}" method="post">
+
+        <div class="form-group">
+            <input class="form-control" name="username" placeholder="Enter New Username" required>
+        </div>
+
+        <div class="form-group">
+          <input type="password" name="password" class="form-control" placeholder="Enter New Password" required>
+        </div>
+
+        <div class="form-group">
+            <button class="btn btn-primary">Register</button>
+        </div>
+
+    </form>
+{% endblock %}

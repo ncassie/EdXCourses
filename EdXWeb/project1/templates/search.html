@@ -1,0 +1,31 @@
+
+{% extends "layout.html" %}
+
+{% block title %}
+Find A Book
+{% endblock %}
+
+{% block body %}
+<h2 style="text-align:center">Search For A Book</h2>
+<div style="margin:0 auto;width:50%;padding:10px;">
+  <form action="{{ url_for('searchresults') }}" method="post">
+    <div class="form-row">
+      <div class="col-sm-4">
+        <select name="searchby">
+          <option value="isbn">ISBN</option>
+          <option value="title">Title</option>
+          <option value="author">Author</option>
+        </select>
+      </div>
+
+      <div class="col-sm-6">
+        <input type="text" name="criteria" class="form-control" placeholder="Search Criteria">
+      </div>
+      <div class="col-sm-2">
+        <button class="btn btn-primary">Search</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+    {% endblock %}

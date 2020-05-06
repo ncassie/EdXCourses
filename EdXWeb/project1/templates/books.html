@@ -1,0 +1,22 @@
+{% extends "loginlayout.html" %}
+
+{% block title %}
+Book Search Results
+{% endblock %}
+
+{% block body %}
+
+  <h2 style="text-align:center">Search Reslts</h2>
+  <p>The following books matched your search.  Please select one.</p>
+  <ul>
+    {% for book in books %}
+      <li>
+          <a href="{{ url_for('book', book_id=book.id) }}">
+            {{ book.title }} by {{ book.author }}
+          </a>
+      </li>
+    {% else %}
+      <li>Sorry, No Matching Books Were Found</li>
+    {% endfor %}
+  </ul>
+{% endblock %}
