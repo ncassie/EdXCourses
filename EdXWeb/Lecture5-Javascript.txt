@@ -1,0 +1,7 @@
+Javascript
+  Class uses version ES6
+
+Add a script to a web page
+  <script>
+    alert('Hello, world');
+  </script>
