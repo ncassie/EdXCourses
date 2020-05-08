@@ -1,7 +1,165 @@
 Javascript
-  Class uses version ES6
+  Class uses version ES6"
+  use to build more dynamic user interfaces
 
 Add a script to a web page
+Javascript code located in <script> code
+
   <script>
-    alert('Hello, world');
+    alert('Hello, world');  // displays alert window
   </script>
+
+// only want code to execute when events happen
+<head>
+  <script>
+    function hello(){
+      alert('Hello');
+    }
+  </script>
+</head>
+<body>
+  <button onclick="hello()">Click Here</button>
+</body>
+
+events (not a comprehensive list)
+  onclick
+  onmouseover
+  onkeydown
+  onkeyup
+  onload
+  onblur  // when object(Like textbox) loses focus
+
+Querying for something in document
+query.html
+
+  // can use to change display (called on onclick)
+  // querySelector will find only the first instance of h1
+  // can select by tag, id, or class
+  function hello(){
+    document.querySelector('h1').innerHTML = 'Goodbye!'; // inner html content between opening and closing h1
+  }
+
+  counter0.html // click button to increase counter
+  <script>
+  let counter = 0;
+  function count() {
+    counter++;
+    document.querySelector('#counter').innerHTML = counter;
+  }
+  </script>
+  <body>
+    <h1 id ="counter">0</h1>
+    <button onclick="count()">Click</button>
+
+  Conditions
+    <script>
+      // same code as above
+      // need ` back tick in alert statement
+      if (counter % 10 === 0){
+        alert(`Counter is at ${counter}!`);
+      }
+    </script>
+
+    counter2.html
+    // pulls onclick event out of html
+    <script>
+      // this is included in every page and loads when page loads
+      // says when page is loaded, set onclick of button to count
+      document.addEventListener('DOMContentLoaded', function() {
+        document.querySelector('button').onclick=count;
+      });
+
+      let counter = 0;
+      function count() {
+        counter++;
+        document.querySelector('#counter').innerHTML = counter;
+      }
+
+      if (counter % 10 === 0){
+        alert(`Counter is at ${counter}!`);
+      }
+    </script>
+
+  Can pull javascript out to separate file
+  <script src="counter3.js"></script>
+
+  counter3.js - same script as above
+
+  define variables
+    const // constant. can't redefine later
+    let  // exists within scope of innermost curly braces surrounding it
+    var  // like let, except scope is for entire function it is defined in
+
+    //Javascript console - built into browsers
+    // shows any errors that occur
+    // can execute code in console and test it out
+    // can manipulate variables in page
+
+    hello1.html
+    // script adds event for form being submitted
+    // displays name submitted in form in an alert
+    <script>
+      document.addEventListener('DOMContentLoaded', function(){
+        document.querySelector('#form').onsubmit = function(){
+          const name = document.querySelector('#name').value;
+          alert(`hello ${name}`);
+        };
+      });
+    </script>
+
+    can modify styling of page
+    color0.html
+    // need to wrap this in DOMContentLoaded line
+    document.querySelector('#red').onclick = function(){
+      document.querySelector('#hello').style.color = 'red';
+    }
+
+
+    colors1.html
+    querySelectorAll - returns array of all matches
+    // again, need to wrap with DOMContentLoaded
+    document.querySelectorAll('.color-change').forEach(function(button){
+      button.onclick = function(){
+        document.querySelector('#hello').style.color = button.dataset.color;
+      };
+    });
+
+    // html has data-color attribute added to it
+    // dataset above gets at any data- item
+
+    new function syntax as of ES6 (arrow notation)
+    // doesn't use function key word
+    // slightly different behavior
+    // a bit more succinct
+    () => {
+      alert('Hello, world!');
+    }
+
+    x => {
+      alert(x);
+    }
+
+    x => x * 2
+    colors2.html
+    <scipt>
+      document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.color-change').forEach(button => {
+          document.querySelector('#hello').style.color = button.dataset.color;
+          };
+        });
+      });
+
+    colors3.html
+    // has drop down that when selected changes color
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelector('#color-change').onchange = function() {
+        document.querySelector('#hello').style.color = this.value;
+      };
+    });
+
+    // this above refers to whatever value function being applied to
+    // what got when extracted color change id from select box
+    // need to function keyword  to bind correctly
+      // => will have different behavior
+
+// 1:01:30
