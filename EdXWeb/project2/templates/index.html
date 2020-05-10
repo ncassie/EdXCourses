@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script>
+
+            // Load current value of  counter
+            document.addEventListener('DOMContentLoaded', () => {
+
+
+                // Set starting value of counter to 0
+                if (!localStorage.getItem('userTest2')){
+
+                  document.querySelector('#welcome').innerHTML = "Welcome to the Chat Site! Enter a new screen name to proceed!";
+
+                  // Create new textbox for name entry
+                  const input = document.createElement('INPUT');
+
+                  input.setAttribute("type", "text");
+
+                  input.setAttribute("name", "username");
+
+                  // Add new item to task list
+                  document.querySelector('#link').appendChild(input);
+
+                }
+                else{
+                    var user = localStorage.getItem('userTest2');
+
+                    document.querySelector('#welcome').innerHTML = `Welcome Back ${user}! Please click below to enter chats!`;
+
+                    const input = document.createElement("INPUT");
+
+                    input.setAttribute("type", "hidden");
+
+                    input.setAttribute("name", "username");
+
+                    input.setAttribute("value", user);
+
+                    //append to form element that you want .
+                    document.querySelector("#loginform").appendChild(input);
+
+                }
+
+
+            });
+
+        </script>
+        <title>Chats</title>
+    </head>
+    <body>
+        <h2 id="welcome"></h2>
+
+
+        <form id="loginform" action="{{ url_for('processlogin') }}" method="post">
+            <div id="link"></div>
+            <div class="form-group">
+                <button class="btn btn-primary">Proceed to Chats</button>
+            </div>
+
+        </form>
+
+    </body>
+</html>

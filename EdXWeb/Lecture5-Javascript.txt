@@ -126,6 +126,8 @@ query.html
 
     // html has data-color attribute added to it
     // dataset above gets at any data- item
+    // can give any data atttribute you want
+    //NEEDS to start with data-
 
     new function syntax as of ES6 (arrow notation)
     // doesn't use function key word
@@ -162,4 +164,61 @@ query.html
     // need to function keyword  to bind correctly
       // => will have different behavior
 
-// 1:01:30
+// Add elements to DOM
+tasks0.html //to do list
+  // start with empty list to add to
+  <script>
+    Document.querySelector('new-task').onsubmit = () => {
+      const li = document.createElement('li');
+      li.innerHMTL = document.querySelector('#task').value;
+
+      document.querySelector('#tasks').append(li);
+
+      document.querySelector('#task').value = '';
+
+      // stops form from submitting
+      return false;
+
+    };
+  </script>
+  <ul id="tasks">
+  </ul>
+  // form to submit task
+
+task1.html
+  additional code to make sure user has input item in box
+  disables button until text entered (onkeyup triggered)
+  needs to be more robust
+
+task2.html
+  when onkeyup triggered, check length to make sure character entered
+
+interval.html
+  uses setInterval(count, 1000);  // calls count function every 1000 milliseconds
+
+local storage - allows storage inside local machine to keep state
+storage.html
+  // if no counter in local storage, create one
+  if (!localStorage.getItem('counter'))
+    localStorage.setItem('counter', 0);
+
+flask/javascript mixing
+Ajax - technology to get more info from server without reloading new page
+currency flask application - users fixer.io to get new exchange rates when button clicked
+  - look at code
+
+Web Sockets = Socket.IO
+ Helps in situation where you don't want to have to refresh to get information
+  - think push notifications and chat rooms
+Client and server can talk back and forth simultaneously (full-duplex communication)
+
+vote application (2 different versions)
+  // building up app to allow voting and seeing results in real time
+
+  // this line emits event to server
+  // emits it to @socketio.on("submit vote") route selection in application.py
+  socket.emit('submit vote', {'selection': selection});
+
+  //application.py method also has emit call that announces to other listening sockets result of that vote
+
+  second version contains dictionary with vote counts

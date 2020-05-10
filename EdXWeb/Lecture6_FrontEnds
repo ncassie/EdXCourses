@@ -1,0 +1,107 @@
+Front ends
+  Single-Page Apps
+
+    singlepage0 application
+    index.html
+      javascript takes care of making it single page
+
+      Disadvantage is that URL doesn't change
+        some users might want it to help see where they are
+
+      HTML 5 has History API that allows manipulation of browser's history
+       including updating URL
+       So can update URL even if user never goes to a different page
+       singlepage1 application has example
+       index.html javascript:
+        document.title = name; // update pages title
+        history.pushState(null, name, name)  // updates url parameters are data associated
+          with pushing url, title of page, url)
+
+        problem with this approach is back button doesn't work
+        url will change, but web page won't update
+
+        fix this using onpopstate  // what happens when pop item off history stack
+        singlepage2 application
+        // push associated data when adding item so can use it when go back
+        // stores data of page at time item is added
+        history.pushState({'title': name, 'text': response}, name, name);
+        // pull out data to update title and HTML
+        // not a real stack, doesn't actually pop
+        // this lets forward button work properly
+
+  window  - HTML/Javascript object that lets you get information
+  // window is what is currently visible to user (html page might be longer)
+  e.g. window.innerWidth, window.innerHeight
+
+  document.body.offsetHeight - total document height
+  window.scrollY - how far down page has user scrolled
+
+  check if user scrolled to bottom of page
+  scroll.HTML
+  if (window.innerHeight + window.scrollY >= document.body.offsetHeight){
+    document.querySelector('body').style.background = 'green';
+  } else{
+    document.querySelector('body').style.background = 'white';
+  }
+  // can use this for autoloading as user scrolls down the page
+  // infinite scroll
+  posts0 application
+  application.py has method posts that just returns json object with a number of posts
+  index.html is where most of work happens
+
+posts1 - ability to hide posts
+  // good code in here for adding button
+  // index.html
+
+Javascript templating
+  templates in Javascript
+  allow to write html you want and substitute in elements using javascript
+
+  Handlebars - library that allows templating (one of many libraries)
+  roll dice programs
+    dice1 - adds images for dice roll
+      shows using img in template
+    dice2 - closer to pure html that Handlebars will compile
+      // factors out some of templates and put in script block
+
+    dice3 - shows iteration over list
+      #each tag // called block helper
+
+    posts2 - index.HTML
+      -uses templating for posts autoload infinite scroll
+      // need to enclose in raw block because {{ }} would be read as Jinga instead of Handlebars
+
+Animation
+  CSS Animation
+  animate0.html
+    inside style block -@keyframes grow - defines animation that grows font size
+    @h1 styling applies grow over 2s seconds
+    animation-fill-mode means remain in end state
+
+  animate1.html - moves h1 element to center
+  animate2.html -another move - but does it based on timing of animation
+   and moves back and forth
+  animate3.html - uses javascript play states to control animations
+
+  Practical uses for animation
+    Give visual representation of post being hidden
+    posts3.html
+      turn post transparent, then remove post
+    posts4.html
+      when post removed, next post slides up into place
+      does this by shrinking size of post being removed
+      first 25% of animation is changing opacity
+      then it starts to shrink to give appearance of next post
+      sliding into place
+
+    SVG - scalable vector graphics
+      - draw what you want on the page
+      circle0.html - draws a circle
+      circle1.html - create circles programmatically
+        uses d3 library (good for graphics and charts)
+      circle2.html - animate svg objects
+        define graphic as constant and then apply transition
+
+    stoplight.html
+
+    draw0.html - whiteboard type app using D3
