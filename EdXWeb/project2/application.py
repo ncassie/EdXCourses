@@ -7,9 +7,11 @@ app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 socketio = SocketIO(app)
 
+chatlist = []
 
 @app.route("/")
 def index():
+    print("This is a test")
     return render_template("index.html")
 
 @app.route("/login")
@@ -20,13 +22,14 @@ def login():
 def chats():
     return render_template("chats.html")
 
-@socketio.on("submit vote")
-def vote(data):
-    selection = data["selection"]
-    return render_template("chats.html")
+@socketio.on("create chat")
+def createchat(data):
+    print("We got to the createchat method")
+    chatname = data["chatname"]
+    chatlist.append(chatname)
+    emit("chat created", {"chatname": chatname}, broadcast=True)
 
-@app.route("/processlogin", methods=["POST"])
+@app.route("/processlogin", methods=["POST", "GET"])
 def processlogin():
-
     username = request.form.get("username")
-    return render_template("chats.html", message=username)
+    return render_template("chats.html", message=username, chats=chatlist)
