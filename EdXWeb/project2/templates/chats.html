@@ -14,14 +14,13 @@
           // When connected, configure buttons
           socket.on('connect', () => {
 
-              // Each button should emit a "submit vote" event
-              document.querySelectorAll('button').forEach(button => {
-                  button.onclick = () => {
-                      const chatname = document.querySelector('#chatname').value;
-                      socket.emit('create chat', {'chatname': chatname});
-                  };
-              });
-          });
+            document.querySelector('#createchatbtn').onclick = () => {
+
+                const chatname = document.querySelector('#chatname').value;
+                socket.emit('create chat', {'chatname': chatname});
+                };
+            });
+            //});
 
           // When a new vote is announced, add to the unordered list
           socket.on('chat created', data => {
@@ -38,7 +37,7 @@
 
           var user = '{{ message }}';
 
-          localStorage.setItem('userTest2', user);
+          localStorage.setItem('userTest3', user);
 
       </script>
         <title>Chat Site</title>
@@ -52,9 +51,11 @@
           {% endfor %}
         </select>
 
-        
+        <button id="gotochat">Join Chat</button>
+
         <input id="chatname" autocomplete="off" autofocus placeholder="New Chat" type="text">
-        <button>Create Chat</button>
+        <button id="createchatbtn">Create Chat</button>
+
 
         <hr>
 
