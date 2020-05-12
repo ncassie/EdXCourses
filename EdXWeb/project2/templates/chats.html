@@ -33,11 +33,12 @@
 
           document.querySelector('#chatselect').onsubmit = () => {
 
+              // clear out old messages
+              document.querySelector('#messages').innerHTML = "";
               //alert("Button clicked");
               // Initialize new request
               const request = new XMLHttpRequest()
               const chatroom = document.querySelector('#chatlist').value;
-              alert(`${chatroom}`);
               request.open('POST', '/loadchat');
 
               // Callback function for when request completes
@@ -49,15 +50,15 @@
                   // getting back .messages
                   // list of dictionaries containing users and messages
                   // [{"user": user, "message": message}]
-                  alert(data.test);
-                  // for(messagedictionary in data.messages){
-                  //   user = messagedictionary.user;
-                  //   message = messagedictionary.message;
-                  //
-                  //   const li = document.createElement('li');
-                  //   li.innerHTML = message;
-                  //   document.querySelector('#messages').append(li);
-                  // }
+
+                  for(i in data.messages){
+                    user = data.messages[i].user;
+                    message = data.messages[i].message;
+
+                    const li = document.createElement('li');
+                    li.innerHTML = user + " - " + message;
+                    document.querySelector('#messages').append(li);
+                  }
 
                }
 

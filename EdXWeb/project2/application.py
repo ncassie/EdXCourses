@@ -51,8 +51,7 @@ def loadchat():
     messages = chatlist[chatroom]
     print(messages)
 
-    return jsonify({"test": "test"})
-    #return jsonify({"messages": messages})
+    return jsonify({"messages": messages})
 
 
 @app.route("/processlogin", methods=["POST", "GET"])
