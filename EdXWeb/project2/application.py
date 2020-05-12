@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, session, render_template, request
+from flask import Flask, session, render_template, request, jsonify
 from flask_socketio import SocketIO, emit
 
 app = Flask(__name__)
@@ -40,8 +40,20 @@ def createchat(data):
 
     # add chatroom and associated message to chatlist
     chatlist[chatname] = messagelist
-
+    print(chatlist[chatname])
     emit("chat created", {"chatname": chatname}, broadcast=True)
+
+@app.route("/loadchat", methods=["POST"])
+def loadchat():
+    chatroom = request.form.get("chatname")
+    print("Chatroom " + chatroom)
+
+    messages = chatlist[chatroom]
+    print(messages)
+
+    return jsonify({"test": "test"})
+    #return jsonify({"messages": messages})
+
 
 @app.route("/processlogin", methods=["POST", "GET"])
 def processlogin():

@@ -7,7 +7,6 @@
 
       document.addEventListener('DOMContentLoaded', () => {
 
-
           // Connect to websocket
           var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
 
@@ -22,10 +21,8 @@
             });
             //});
 
-          // When a new vote is announced, add to the unordered list
+          // When a chat is created, add it to the chat select item
           socket.on('chat created', data => {
-
-
 
               const option = document.createElement('option');
               option.setAttribute("value", `${data.chatname}`);
@@ -33,25 +30,70 @@
               document.querySelector("#chatlist").add(option);
 
           });
-        });
+
+          document.querySelector('#chatselect').onsubmit = () => {
+
+              //alert("Button clicked");
+              // Initialize new request
+              const request = new XMLHttpRequest()
+              const chatroom = document.querySelector('#chatlist').value;
+              alert(`${chatroom}`);
+              request.open('POST', '/loadchat');
+
+              // Callback function for when request completes
+              request.onload = () => {
+
+                   // Extract JSON data from request
+                   const data = JSON.parse(request.responseText);
+
+                  // getting back .messages
+                  // list of dictionaries containing users and messages
+                  // [{"user": user, "message": message}]
+                  alert(data.test);
+                  // for(messagedictionary in data.messages){
+                  //   user = messagedictionary.user;
+                  //   message = messagedictionary.message;
+                  //
+                  //   const li = document.createElement('li');
+                  //   li.innerHTML = message;
+                  //   document.querySelector('#messages').append(li);
+                  // }
+
+               }
+
+              // Add data to send with request
+              const data = new FormData();
+              data.append('chatname', chatroom);
+              //
+              // Send request
+              request.send(data);
+              return false;
+          };
+
+
+        }); // end of DOMContentLoaded
 
           var user = '{{ message }}';
 
           localStorage.setItem('userTest3', user);
+
+
 
       </script>
         <title>Chat Site</title>
     </head>
     <body>
         <h3>Welcome to the Chat Site!</h3>
+        <form id="chatselect">
+          <select id="chatlist">
+            {% for chat in chats %}
+              <option value="{{ chat }}">{{ chat }}</option>
+              {% endfor %}
+          </select>
+          <input type="submit" value="Enter Chat">
+        </form>
 
-        <select id="chatlist">
-          {% for chat in chats %}
-            <option value="{{ chat }}">{{ chat }}</option>
-          {% endfor %}
-        </select>
 
-        <button id="gotochat">Join Chat</button>
 
         <input id="chatname" autocomplete="off" autofocus placeholder="New Chat" type="text">
         <button id="createchatbtn">Create Chat</button>
@@ -59,6 +101,8 @@
 
         <hr>
 
+        <ul id="messages">
+        </ul>
 
     </body>
 </html>
