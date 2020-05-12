@@ -7,11 +7,10 @@ app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 socketio = SocketIO(app)
 
-chatlist = []
+chatlist = {}
 
 @app.route("/")
 def index():
-    print("This is a test")
     return render_template("index.html")
 
 @app.route("/login")
@@ -24,9 +23,24 @@ def chats():
 
 @socketio.on("create chat")
 def createchat(data):
-    print("We got to the createchat method")
+    # get name of chatroom
     chatname = data["chatname"]
-    chatlist.append(chatname)
+
+    # create a system user to provide welcome message
+    user = "System"
+
+    # generate first message
+    message = "Welcome to the " + chatname + " chat."
+
+    # create dictionary out of user and message
+    messagedictionary = {"user": user, "message": message}
+
+    # create list of messages for chat room
+    messagelist = [messagedictionary]
+
+    # add chatroom and associated message to chatlist
+    chatlist[chatname] = messagelist
+
     emit("chat created", {"chatname": chatname}, broadcast=True)
 
 @app.route("/processlogin", methods=["POST", "GET"])
