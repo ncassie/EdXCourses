@@ -2,6 +2,7 @@ import os
 
 from flask import Flask, session, render_template, request, jsonify
 from flask_socketio import SocketIO, emit
+from datetime import datetime
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
@@ -23,7 +24,7 @@ def createchat(data):
     chatname = data["chatname"]
 
     # create a system user to provide welcome message
-    user = "System"
+    user = "System - " + datetime.now().strftime("%d-%b-%Y (%H:%M:%S.%f)")
 
     # generate first message
     message = "Welcome to the " + chatname + " chat."
@@ -44,8 +45,10 @@ def createchat(data):
 def submitmessage(data):
     #get name of message sender
     messagesender = data["user"]
-    print(messagesender)
-    
+
+    #add datestamp to user
+    messagesender = messagesender + " - " + datetime.now().strftime("%d-%b-%Y (%H:%M:%S.%f)")
+
     #get chat room message was sent in
     room = data["room"]
 
@@ -58,12 +61,29 @@ def submitmessage(data):
     # get message list for chat room
     messagelist = chatlist[room]
 
+    #Ensure size of message list remains at or below 100
+    if len(messagelist) > 100:
+        messagelist.pop(0)
+
     messagelist.append(messagedictionary)
 
     # add updaed message list back to dictionary
     chatlist[room] = messagelist
-    print(chatlist[room])
+
     emit("message received", {"user": messagesender, "room": room, "message": message}, broadcast=True)
+
+
+@socketio.on("submit private message")
+def submitprivatemessage(data):
+
+    recevier = data["receiver"]
+    sender = data["user"]
+    message = data["message"]
+
+    message = sender + " says " + message
+
+    emit("private message received", {"receiver": recevier, "message": message}, broadcast=True)
+
 
 @app.route("/loadchat", methods=["POST"])
 def loadchat():

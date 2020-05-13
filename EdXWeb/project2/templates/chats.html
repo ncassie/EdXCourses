@@ -22,6 +22,7 @@
           if(localStorage.getItem('currentroom')){
 
               room = localStorage.getItem('currentroom');
+              currentroom = room;
               load_messages(room);
           }
 
@@ -40,6 +41,13 @@
               document.querySelector('#sendmessage').onclick = () => {
                 const message = document.querySelector('#message').value;
                 socket.emit('submit message', {'room': currentroom, 'user': user, 'message': message});
+              };
+
+              // add functionality for adding message button
+              document.querySelector('#sendprivatemessage').onclick = () => {
+                const message = document.querySelector('#privatemessage').value;
+                const receiver = document.querySelector('#privatemessagereceiver').value;
+                socket.emit('submit private message', {'receiver': receiver, 'user': user, 'message': message});
               };
 
             });
@@ -65,6 +73,17 @@
                 const li = document.createElement('li');
                 li.innerHTML = sender + " - " + message;
                 document.querySelector('#messages').append(li);
+              }
+
+          });
+
+          // display private message to correct person
+          socket.on('private message received', data => {
+              let receiver = data.receiver;
+              let message = data.message;
+
+              if(receiver === user){
+                alert(message);
               }
 
           });
@@ -150,6 +169,10 @@
         <button id="sendmessage">Send Message</button>
 
         <hr>
+
+        <input id="privatemessagereceiver" autocomplete="off" autofocus placeholder="Enter Recipient" type="text">
+        <input id="privatemessage" autocomplete="off" autofocus placeholder="Enter Private Message" type="text">
+        <button id="sendprivatemessage">Send Private Message</button>
 
         <ul id="messages">
         </ul>
