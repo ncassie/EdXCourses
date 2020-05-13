@@ -14,33 +14,54 @@ chatlist = {}
 def index():
     return render_template("index.html")
 
-@app.route("/login")
-def login():
-    return render_template("test.html")
 
 @socketio.on("create chat")
 def createchat(data):
     # get name of chatroom
     chatname = data["chatname"]
 
-    # create a system user to provide welcome message
-    user = "System - " + datetime.now().strftime("%d-%b-%Y (%H:%M:%S.%f)")
+    if(chatname not in chatlist):
 
-    # generate first message
-    message = "Welcome to the " + chatname + " chat."
+        # create a system user to provide welcome message
+        user = "System - " + datetime.now().strftime("%d-%b-%Y (%H:%M:%S.%f)")
 
-    # create dictionary out of user and message
-    messagedictionary = {"user": user, "message": message}
+        # generate first message
+        message = "Welcome to the " + chatname + " chat."
 
-    # create list of messages for chat room
-    messagelist = [messagedictionary]
+        # create dictionary out of user and message
+        messagedictionary = {"user": user, "message": message}
 
-    # add chatroom and associated message to chatlist
-    chatlist[chatname] = messagelist
+        # create list of messages for chat room
+        messagelist = [messagedictionary]
 
-    print(chatlist[chatname])
-    emit("chat created", {"chatname": chatname}, broadcast=True)
+        # add chatroom and associated message to chatlist
+        chatlist[chatname] = messagelist
 
+        success = True
+    else:
+        success = False
+    emit("chat created", {"success": success, "chatname": chatname}, broadcast=True)
+
+#loads messages for selected chatroom
+@app.route("/loadchat", methods=["POST"])
+def loadchat():
+
+    # get desired chatroom from input
+    chatroom = request.form.get("chatname")
+
+    #load messages for selected chatroom
+    messages = chatlist[chatroom]
+
+    # return json object containing all messages for chatroom
+    return jsonify({"messages": messages})
+
+# route for channel page
+@app.route("/chats", methods=["POST", "GET"])
+def chats():
+    username = request.form.get("username")
+    return render_template("chats.html", message=username, chats=chatlist)
+
+# Process and transmit public message
 @socketio.on("submit message")
 def submitmessage(data):
     #get name of message sender
@@ -65,6 +86,7 @@ def submitmessage(data):
     if len(messagelist) > 100:
         messagelist.pop(0)
 
+    # add new message to message list
     messagelist.append(messagedictionary)
 
     # add updaed message list back to dictionary
@@ -72,31 +94,17 @@ def submitmessage(data):
 
     emit("message received", {"user": messagesender, "room": room, "message": message}, broadcast=True)
 
-
+# handles sending of private message
 @socketio.on("submit private message")
 def submitprivatemessage(data):
 
+    # load specified input
     recevier = data["receiver"]
     sender = data["user"]
     message = data["message"]
 
+    # construct private message to send
     message = sender + " says " + message
 
+    # emit private message and recipient
     emit("private message received", {"receiver": recevier, "message": message}, broadcast=True)
-
-
-@app.route("/loadchat", methods=["POST"])
-def loadchat():
-    chatroom = request.form.get("chatname")
-    print("Chatroom " + chatroom)
-
-    messages = chatlist[chatroom]
-    print(messages)
-
-    return jsonify({"messages": messages})
-
-
-@app.route("/chats", methods=["POST", "GET"])
-def chats():
-    username = request.form.get("username")
-    return render_template("chats.html", message=username, chats=chatlist)

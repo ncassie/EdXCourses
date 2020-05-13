@@ -7,10 +7,11 @@
             document.addEventListener('DOMContentLoaded', () => {
 
 
-                // Set starting value of counter to 0
-                if (!localStorage.getItem('userTest4')){
+                // if user has never been to site before
+                // provide area to enter user name
+                if (!localStorage.getItem('user')){
 
-                  document.querySelector('#welcome').innerHTML = "Welcome to the Chat Site! Enter a new screen name to proceed!";
+                  document.querySelector('#welcome').innerHTML = "Welcome to FRABBLER! Enter a new screen name to proceed!";
 
                   // Create new textbox for name entry
                   const input = document.createElement('INPUT');
@@ -23,10 +24,11 @@
                   document.querySelector('#link').appendChild(input);
 
                 }
+                // otherwise allow user to proceed to chats
                 else{
-                    var user = localStorage.getItem('userTest4');
+                    var user = localStorage.getItem('user');
 
-                    document.querySelector('#welcome').innerHTML = `Welcome Back ${user}! Please click below to enter chats!`;
+                    document.querySelector('#welcome').innerHTML = `Hi ${user}! Welcome Back To FRABBLER`;
 
                     const input = document.createElement("INPUT");
 
@@ -46,12 +48,12 @@
         </script>
         <title>Chats</title>
     </head>
-    <body>
-        <h2 id="welcome"></h2>
+    <body style="background-color:MistyRose">
+        <h2 id="welcome" style="text-align:center"></h2>
 
 
-        <form id="loginform" action="{{ url_for('chats') }}" method="post">
-            <div id="link"></div>
+        <form id="loginform" action="{{ url_for('chats') }}" method="post" style="margin:0 auto;width:50%;padding:10px;">
+            <div id="link" style="margin:5px"></div>
             <div class="form-group">
                 <button class="btn btn-primary">Proceed to Chats</button>
             </div>

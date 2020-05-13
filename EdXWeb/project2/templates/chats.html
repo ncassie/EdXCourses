@@ -1,181 +1,215 @@
 <!DOCTYPE html>
 <html>
-    <head>
-      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
+<head>
+  <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
 
-      <script>
+  <script>
 
-        var currentroom = "";
+  var currentroom = "";
 
-        var user;
-        if(!localStorage.getItem('userTest4'))
-        {
-            user = '{{ message }}';
-            localStorage.setItem('userTest4', user);
-        }else{
-          user = localStorage.getItem('userTest4');
-        }
+  var user;
+  if(!localStorage.getItem('user'))
+  {
+    user = '{{ message }}';
+    localStorage.setItem('user', user);
+  }else{
+    user = localStorage.getItem('user');
+  }
 
+  // load the DOM
+  document.addEventListener('DOMContentLoaded', () => {
 
-      document.addEventListener('DOMContentLoaded', () => {
+    // load previously visited channel
+    if(localStorage.getItem('currentroom')){
 
-          if(localStorage.getItem('currentroom')){
+      room = localStorage.getItem('currentroom');
+      currentroom = room;
+      document.querySelector('#channelname').innerHTML = "Current Channel: " + room;
+      load_messages(room);
 
-              room = localStorage.getItem('currentroom');
-              currentroom = room;
-              load_messages(room);
-          }
+    }
 
-          // Connect to websocket
-          var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
+    // Connect to websocket
+    var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
 
-          // When connected, configure buttons
-          socket.on('connect', () => {
-              // add functionality for creating chat button
-              document.querySelector('#createchatbtn').onclick = () => {
-                const chatname = document.querySelector('#chatname').value;
-                socket.emit('create chat', {'chatname': chatname});
-              };
+    // When connected, configure buttons
+    socket.on('connect', () => {
+      // add functionality for creating chat button
+      document.querySelector('#createchatbtn').onclick = () => {
+        const chatname = document.querySelector('#chatname').value;
 
-              // add functionality for adding message button
-              document.querySelector('#sendmessage').onclick = () => {
-                const message = document.querySelector('#message').value;
-                socket.emit('submit message', {'room': currentroom, 'user': user, 'message': message});
-              };
+        // reset input field
+        document.querySelector('#chatname').value = '';
 
-              // add functionality for adding message button
-              document.querySelector('#sendprivatemessage').onclick = () => {
-                const message = document.querySelector('#privatemessage').value;
-                const receiver = document.querySelector('#privatemessagereceiver').value;
-                socket.emit('submit private message', {'receiver': receiver, 'user': user, 'message': message});
-              };
+        socket.emit('create chat', {'chatname': chatname});
+      };
 
-            });
-            //});
+      // add functionality for sending group message button
+      document.querySelector('#sendmessage').onclick = () => {
+        const message = document.querySelector('#message').value;
 
-          // When a chat is created, add it to the chat select item
-          socket.on('chat created', data => {
+        // reset input field
+        document.querySelector('#message').value = '';
 
-              const option = document.createElement('option');
-              option.setAttribute("value", `${data.chatname}`);
-              option.innerHTML = `${data.chatname}`;
-              document.querySelector("#chatlist").add(option);
+        socket.emit('submit message', {'room': currentroom, 'user': user, 'message': message});
+      };
 
-          });
+      // add functionality for sending private message button
+      document.querySelector('#sendprivatemessage').onclick = () => {
+        const message = document.querySelector('#privatemessage').value;
+        const receiver = document.querySelector('#privatemessagereceiver').value;
 
-          // When a chat is created, add it to the chat select item
-          socket.on('message received', data => {
-              let sender = data.user;
-              let message = data.message;
-              let room = data.room;
+        // reset input fields
+        document.querySelector('#privatemessage').value = '';
+        document.querySelector('#privatemessagereceiver').value = '';
+        socket.emit('submit private message', {'receiver': receiver, 'user': user, 'message': message});
+      };
 
-              if(currentroom === room){
-                const li = document.createElement('li');
-                li.innerHTML = sender + " - " + message;
-                document.querySelector('#messages').append(li);
-              }
+    });
 
-          });
+    // When a chat is created, add it to the chat select item
+    socket.on('chat created', data => {
 
-          // display private message to correct person
-          socket.on('private message received', data => {
-              let receiver = data.receiver;
-              let message = data.message;
-
-              if(receiver === user){
-                alert(message);
-              }
-
-          });
-
-          document.querySelector('#chatselect').onsubmit = () => {
-
-              // clear out old messages
-              document.querySelector('#messages').innerHTML = "";
-
-              // Initialize new request
-
-              const chatroom = document.querySelector('#chatlist').value;
-
-              load_messages(chatroom);
-
-              currentroom = chatroom;
-              localStorage.setItem('currentroom', chatroom);
-              return false;
-          };
+      if(data.success){
+        const option = document.createElement('option');
+        option.setAttribute("value", `${data.chatname}`);
+        option.innerHTML = `${data.chatname}`;
+        document.querySelector("#chatlist").add(option);
+      }
 
 
-        }); // end of DOMContentLoaded
+
+    });
+
+    // Display Group Message when received
+    socket.on('message received', data => {
+      let sender = data.user;
+      let message = data.message;
+      let room = data.room;
+
+      if(currentroom === room){
+        const li = document.createElement('li');
+        li.innerHTML = sender + " - " + message;
+        document.querySelector('#messages').append(li);
+      }
+
+    });
+
+    // display private message to correct person
+    socket.on('private message received', data => {
+      let receiver = data.receiver;
+      let message = data.message;
+
+      if(receiver === user){
+        alert(message);
+      }
+
+    });
+
+    // change rooms when new channel selected
+    document.querySelector('#chatselect').onsubmit = () => {
+
+      // clear out old messages
+      document.querySelector('#messages').innerHTML = "";
+
+      const chatroom = document.querySelector('#chatlist').value;
+
+      load_messages(chatroom);
+
+      currentroom = chatroom;
+      localStorage.setItem('currentroom', chatroom);
+
+      document.querySelector('#channelname').innerHTML = "Current Channel: " + chatroom;
+      return false;
+    };
 
 
-        function load_messages(chatroom){
+  }); // end of DOMContentLoaded
 
-          const request = new XMLHttpRequest();
 
-          request.open('POST', '/loadchat');
+  function load_messages(chatroom){
 
-          // Callback function for when request completes
-          request.onload = () => {
+    const request = new XMLHttpRequest();
 
-               // Extract JSON data from request
-               const data = JSON.parse(request.responseText);
+    request.open('POST', '/loadchat');
 
-              // getting back .messages
-              // list of dictionaries containing users and messages
-              // [{"user": user, "message": message}]
+    // Callback function for when request completes
+    request.onload = () => {
 
-              for(i in data.messages){
-                let sender = data.messages[i].user;
-                let message = data.messages[i].message;
+      // Extract JSON data from request
+      const data = JSON.parse(request.responseText);
 
-                const li = document.createElement('li');
-                li.innerHTML = sender + " - " + message;
-                document.querySelector('#messages').append(li);
-              }
+      // getting back .messages
+      // list of dictionaries containing users and messages
+      // [{"user": user, "message": message}]
 
-           }
+      for(i in data.messages){
+        let sender = data.messages[i].user;
+        let message = data.messages[i].message;
 
-          // Add data to send with request
-          const data = new FormData();
-          data.append('chatname', chatroom);
-          //
-          // Send request
-          request.send(data);
+        const li = document.createElement('li');
+        li.innerHTML = sender + " - " + message;
+        document.querySelector('#messages').appendChild(li);
+      }
 
-        }
+    }
 
-      </script>
-        <title>Chat Site</title>
-    </head>
-    <body>
-        <h3>Welcome to the Chat Site!</h3>
+    // Add data to send with request
+    const data = new FormData();
+    data.append('chatname', chatroom);
+    //
+    // Send request
+    request.send(data);
+
+  }
+
+  </script>
+  <title>FRABBLER</title>
+</head>
+<body style="background-color:MistyRose">
+  <h3 style="text-align:center">FRABBLER</h3>
+
+  <table style="border: 2px solid palevioletred; border-collapse: collapse; margin:0 auto;width:75%;padding:10px;">
+    <tr style="border: 1px solid palevioletred; border-collapse: collapse; padding: 5px;">
+      <td style="border: 1px solid palevioletred; border-collapse: collapse; padding: 5px;">
+        <p>Select Channel</p>
         <form id="chatselect">
           <select id="chatlist">
             {% for chat in chats %}
-              <option value="{{ chat }}">{{ chat }}</option>
-              {% endfor %}
+            <option value="{{ chat }}">{{ chat }}</option>
+            {% endfor %}
           </select>
-          <input type="submit" value="Enter Chat">
+          <input type="submit" value="Enter Channel">
         </form>
+      </td>
+      <td style="border: 1px solid palevioletred; border-collapse: collapse; padding: 5px;">
+        <p>Create New Channel</p>
+        <input id="chatname" autocomplete="off" autofocus placeholder="New Channel Name" type="text">
+        <button id="createchatbtn">Create Channel</button>
+      </td>
+    </tr>
 
-        <hr>
 
-        <input id="chatname" autocomplete="off" autofocus placeholder="New Chat" type="text">
-        <button id="createchatbtn">Create Chat</button>
+    <tr style="border: 1px solid palevioletred; border-collapse: collapse; padding: 5px;">
+      <td style="border: 1px solid palevioletred; border-collapse: collapse; padding: 5px;">
 
-        <hr>
-
-        <input id="message" autocomplete="off" autofocus placeholder="Enter Message" type="text">
-        <button id="sendmessage">Send Message</button>
-
-        <hr>
+        <input id="message" autocomplete="off" autofocus placeholder="Enter Group Message" type="text">
+        <button id="sendmessage">Send Group Message</button>
+      </td>
+      <td style="border: 1px solid palevioletred; border-collapse: collapse; padding: 5px;">
 
         <input id="privatemessagereceiver" autocomplete="off" autofocus placeholder="Enter Recipient" type="text">
         <input id="privatemessage" autocomplete="off" autofocus placeholder="Enter Private Message" type="text">
         <button id="sendprivatemessage">Send Private Message</button>
+      </td>
+    </tr>
+  </table>
 
-        <ul id="messages">
-        </ul>
+  <h5 id="channelname"></h5>
+  <p></p>
+  <p></p>
+  <ul id="messages">
+  </ul>
 
-    </body>
+</body>
 </html>
