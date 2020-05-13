@@ -19,6 +19,12 @@
 
       document.addEventListener('DOMContentLoaded', () => {
 
+          if(localStorage.getItem('currentroom')){
+
+              room = localStorage.getItem('currentroom');
+              load_messages(room);
+          }
+
           // Connect to websocket
           var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
 
@@ -67,47 +73,57 @@
 
               // clear out old messages
               document.querySelector('#messages').innerHTML = "";
-              //alert("Button clicked");
+
               // Initialize new request
-              const request = new XMLHttpRequest()
+
               const chatroom = document.querySelector('#chatlist').value;
 
-              request.open('POST', '/loadchat');
+              load_messages(chatroom);
 
-              // Callback function for when request completes
-              request.onload = () => {
-
-                   // Extract JSON data from request
-                   const data = JSON.parse(request.responseText);
-
-                  // getting back .messages
-                  // list of dictionaries containing users and messages
-                  // [{"user": user, "message": message}]
-
-                  for(i in data.messages){
-                    let sender = data.messages[i].user;
-                    let message = data.messages[i].message;
-
-                    const li = document.createElement('li');
-                    li.innerHTML = sender + " - " + message;
-                    document.querySelector('#messages').append(li);
-                  }
-
-               }
-
-              // Add data to send with request
-              const data = new FormData();
-              data.append('chatname', chatroom);
-              //
-              // Send request
-              request.send(data);
               currentroom = chatroom;
+              localStorage.setItem('currentroom', chatroom);
               return false;
           };
 
 
         }); // end of DOMContentLoaded
 
+
+        function load_messages(chatroom){
+
+          const request = new XMLHttpRequest();
+
+          request.open('POST', '/loadchat');
+
+          // Callback function for when request completes
+          request.onload = () => {
+
+               // Extract JSON data from request
+               const data = JSON.parse(request.responseText);
+
+              // getting back .messages
+              // list of dictionaries containing users and messages
+              // [{"user": user, "message": message}]
+
+              for(i in data.messages){
+                let sender = data.messages[i].user;
+                let message = data.messages[i].message;
+
+                const li = document.createElement('li');
+                li.innerHTML = sender + " - " + message;
+                document.querySelector('#messages').append(li);
+              }
+
+           }
+
+          // Add data to send with request
+          const data = new FormData();
+          data.append('chatname', chatroom);
+          //
+          // Send request
+          request.send(data);
+
+        }
 
       </script>
         <title>Chat Site</title>
