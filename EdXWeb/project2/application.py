@@ -17,10 +17,6 @@ def index():
 def login():
     return render_template("test.html")
 
-@app.route("/chats")
-def chats():
-    return render_template("chats.html")
-
 @socketio.on("create chat")
 def createchat(data):
     # get name of chatroom
@@ -40,8 +36,34 @@ def createchat(data):
 
     # add chatroom and associated message to chatlist
     chatlist[chatname] = messagelist
+
     print(chatlist[chatname])
     emit("chat created", {"chatname": chatname}, broadcast=True)
+
+@socketio.on("submit message")
+def submitmessage(data):
+    #get name of message sender
+    messagesender = data["user"]
+    print(messagesender)
+    
+    #get chat room message was sent in
+    room = data["room"]
+
+    #get message
+    message = data["message"]
+
+    # create dictionary out of user and message
+    messagedictionary = {"user": messagesender, "message": message}
+
+    # get message list for chat room
+    messagelist = chatlist[room]
+
+    messagelist.append(messagedictionary)
+
+    # add updaed message list back to dictionary
+    chatlist[room] = messagelist
+    print(chatlist[room])
+    emit("message received", {"user": messagesender, "room": room, "message": message}, broadcast=True)
 
 @app.route("/loadchat", methods=["POST"])
 def loadchat():
@@ -54,7 +76,7 @@ def loadchat():
     return jsonify({"messages": messages})
 
 
-@app.route("/processlogin", methods=["POST", "GET"])
-def processlogin():
+@app.route("/chats", methods=["POST", "GET"])
+def chats():
     username = request.form.get("username")
     return render_template("chats.html", message=username, chats=chatlist)

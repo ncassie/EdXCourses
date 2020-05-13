@@ -8,7 +8,7 @@
 
 
                 // Set starting value of counter to 0
-                if (!localStorage.getItem('userTest3')){
+                if (!localStorage.getItem('userTest4')){
 
                   document.querySelector('#welcome').innerHTML = "Welcome to the Chat Site! Enter a new screen name to proceed!";
 
@@ -24,7 +24,7 @@
 
                 }
                 else{
-                    var user = localStorage.getItem('userTest3');
+                    var user = localStorage.getItem('userTest4');
 
                     document.querySelector('#welcome').innerHTML = `Welcome Back ${user}! Please click below to enter chats!`;
 
@@ -41,7 +41,6 @@
 
                 }
 
-
             });
 
         </script>
@@ -51,7 +50,7 @@
         <h2 id="welcome"></h2>
 
 
-        <form id="loginform" action="{{ url_for('processlogin') }}" method="post">
+        <form id="loginform" action="{{ url_for('chats') }}" method="post">
             <div id="link"></div>
             <div class="form-group">
                 <button class="btn btn-primary">Proceed to Chats</button>

@@ -5,6 +5,18 @@
 
       <script>
 
+        var currentroom = "";
+
+        var user;
+        if(!localStorage.getItem('userTest4'))
+        {
+            user = '{{ message }}';
+            localStorage.setItem('userTest4', user);
+        }else{
+          user = localStorage.getItem('userTest4');
+        }
+
+
       document.addEventListener('DOMContentLoaded', () => {
 
           // Connect to websocket
@@ -12,12 +24,18 @@
 
           // When connected, configure buttons
           socket.on('connect', () => {
-
-            document.querySelector('#createchatbtn').onclick = () => {
-
+              // add functionality for creating chat button
+              document.querySelector('#createchatbtn').onclick = () => {
                 const chatname = document.querySelector('#chatname').value;
                 socket.emit('create chat', {'chatname': chatname});
-                };
+              };
+
+              // add functionality for adding message button
+              document.querySelector('#sendmessage').onclick = () => {
+                const message = document.querySelector('#message').value;
+                socket.emit('submit message', {'room': currentroom, 'user': user, 'message': message});
+              };
+
             });
             //});
 
@@ -31,6 +49,20 @@
 
           });
 
+          // When a chat is created, add it to the chat select item
+          socket.on('message received', data => {
+              let sender = data.user;
+              let message = data.message;
+              let room = data.room;
+
+              if(currentroom === room){
+                const li = document.createElement('li');
+                li.innerHTML = sender + " - " + message;
+                document.querySelector('#messages').append(li);
+              }
+
+          });
+
           document.querySelector('#chatselect').onsubmit = () => {
 
               // clear out old messages
@@ -39,6 +71,7 @@
               // Initialize new request
               const request = new XMLHttpRequest()
               const chatroom = document.querySelector('#chatlist').value;
+
               request.open('POST', '/loadchat');
 
               // Callback function for when request completes
@@ -52,11 +85,11 @@
                   // [{"user": user, "message": message}]
 
                   for(i in data.messages){
-                    user = data.messages[i].user;
-                    message = data.messages[i].message;
+                    let sender = data.messages[i].user;
+                    let message = data.messages[i].message;
 
                     const li = document.createElement('li');
-                    li.innerHTML = user + " - " + message;
+                    li.innerHTML = sender + " - " + message;
                     document.querySelector('#messages').append(li);
                   }
 
@@ -68,16 +101,12 @@
               //
               // Send request
               request.send(data);
+              currentroom = chatroom;
               return false;
           };
 
 
         }); // end of DOMContentLoaded
-
-          var user = '{{ message }}';
-
-          localStorage.setItem('userTest3', user);
-
 
 
       </script>
@@ -94,11 +123,15 @@
           <input type="submit" value="Enter Chat">
         </form>
 
-
+        <hr>
 
         <input id="chatname" autocomplete="off" autofocus placeholder="New Chat" type="text">
         <button id="createchatbtn">Create Chat</button>
 
+        <hr>
+
+        <input id="message" autocomplete="off" autofocus placeholder="Enter Message" type="text">
+        <button id="sendmessage">Send Message</button>
 
         <hr>
 
