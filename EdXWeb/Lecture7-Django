@@ -1,0 +1,287 @@
+Django
+  Flask more lightweight framework
+    doesn't come with a lot of functionality
+  Django allows more out of the box
+
+  django-admin startproject projectname
+
+  //django project is big picture for application
+  // all in project_name
+  __init__.py - designates as module. Can combine modules
+  manage.py - python script - don't need to edit but can use
+  settings.py - settings for app
+  urls.py - sets up routes for project
+  wsgi.py - allows deployment to webserver
+
+  //projects contain one or more apps containing functionality
+  inside project directory
+  python manage.py startapp [appname]
+  gives new directory in project folder
+  views.py - analogous to application.py
+  all views functions take request as parameter
+
+  from django.http import HttpResponse
+  from django.shortcuts import render
+
+  def index(request):
+    return HttpResponse("Hello, world")
+
+  // in application, create new urls.py for app
+  // . means current directory
+  from django.urls import path
+  from . import views
+  // "" is / path
+  urlpatterns = [
+    path("", views.index, name="index"),
+    path("<int:flight_id>", views.flight, name="flight"), # giving name helps with creating html links
+    path("<int:flight_id>/book", views.book, name="book")
+  ]
+
+  // in project urls.py
+  // need to link to app urls.py
+  // add import:
+  from django.urls import include
+  in urls urlpatterns add line:
+  path('', include('hello.urls
+
+  python manage.py runserver
+
+  airline app
+  Database set up - database set up to interface with data so easy to do
+  models.py
+    # define classes that define types of data want to store in data - like flasksqlalchemy
+    # Djano has fields built in
+
+  class Flight(models.Model):
+    origin = models.CharField(max_length=64)
+    destination = models.CharField(max_length=64)
+    duration = models.IntegerField()
+
+    def __str__(self):   # like to string method - define how to print it out
+      return f"{self.id} - {self.origin} to {self.destination}"
+
+
+  # need to tell Djano project about models
+  # go to setttings.py
+  INSTALL_APPS = [contains a bunch of built in apps, need to add, e.g., 'flights.app.FlightsConfig']
+
+
+  Migrations - how to update database as app grows (add tables, add columns)
+    (solves tediousness of having to alter code and write sql scripts)
+    Djano will automatically detect when changes are made to models.py and perform appropriate sql functions
+    will automatically add id for primary key
+    Do this on command line:
+    python manage.py makemigrations
+
+    python manage.py migrate # applies migrations
+
+  settings.py - has database settings
+  default is a local sqllite database
+
+  python manage.py shell # gets you into django's shell
+  f.save() after creating object will commit it to database
+  Flight.objects.all() - will return QuerySet of everything in flights table
+  f = Flight.objects.first()  # will give first flight
+  f.delete() will delete
+  f.origin
+
+  update and expand app models:
+
+  class Airport(models.Model):
+    code = models.CharField(max_length=3)
+    city = models.CharField(max_length=64)
+
+    def __str__(self):
+      return f"{self.city} (){self.code})"
+
+  class Flight(models.Model):
+    origin = models.ForeignKey(Airport, on_delete=models.CASCADE, related_name="departures")  # if delete airport, delete corresponding flights with that origin, related name allows departures
+    destination = models.ForeignKey(Airport, on_delete=models.CASCADE, related_name="arrivals")
+    duration = models.IntegerField()
+
+    def __str__(self):   # like to string method - define how to print it out
+      return f"{self.id} - {self.origin} to {self.destination}"
+
+    ## jfk.departures.all() # will return all flights with origin of jfk
+
+    # create many to many relationship between Passengers and Flights
+    # Django handles automatically when create ManyToMany relationship
+    # don't need to create intermediate table yourself
+    class Passenger(models.Model):
+      first = models.CharField(max_length=64)
+      last = models.CharField(max_length=64)
+      flights = models.ManyToMany(Flight, blank=True, related_name="passengers")  # blank in case passenger doesn't have any flights
+
+      def __str__(self):
+        return f"{self.first} {self.last}"
+
+Rendering templates
+views.py
+from django.http import HttpResponse, Http404, HttpResponseRedirect
+from django.shortcuts import render
+from django.urls import reverse
+
+from .models import Flight, Passenger
+
+# context dictionary is how you pass info from python to html
+def index(request):
+  context = {
+    "flights": Flight.objects.all()
+  }
+  return render(request, "flights/index.html", context)
+
+def flight(request, flight_id):  # flight_id is parameter from urls.py
+  try:
+    flight = Flights.objects.get(pk=flight_id)
+  except Flight.DoesNotExist:     # built into django models if element doesn't exist
+    raise Http404("Flight does not exist")  # built in django exception
+
+  context = {
+    "flight": flight,
+    "passengers": flight.passengers.all()
+    "non_passengers": Passenger.objects.exclude(flights=flight).all()  # get everyone not on the flight
+  }
+
+  return render(request, "flights/flight.html", context)
+
+def book(request, flight_id):
+  try:
+    passenger_id = int(request.POST["passenger"])
+    passenger = Passenger.objects.get(pk=passenger_id)
+    flight = Flight.objects.get(pk=flight_id)
+  except KeyError:
+      return render(request, "flights/error.html", {"message": "No Selection"})
+  except Passenger.DoesNotExist:
+    return render(request, "flights/error.html", {"message": "No Passenger"})
+  except Flight.DoesNotExist:
+    return render(request, "flights/error.html", {"message": "No Flight"})
+
+  passenger.flights.add(flight)
+  return HttpResponseRedirect(reverse("flight", args=(flight_id)))  # reverse lets you redirect using name instead of url; extracts route using the name
+                                                                    # this call lets you call python back end function to perform functionality of
+                                                                    # loading page
+
+
+html goes in appname/templates - good practice to namespace templates - create directory in templates with app name
+  so this would be flights/templates/flights/index.html
+
+<!DOCTYPE html>
+<html>
+  <head>
+  </head>
+  <body>
+    <h1>Flights</h1>
+    <ul>
+      {% for flight in flights %}
+        <li>
+          <a href>="{% url 'flight' flight.id %}"{{ flight }}</a>  // url name and id to pass into it
+        </li>
+      {% endfor %}
+    </ul>
+  </body>
+</html>
+
+
+flight.html
+<!DOCTYPE html>
+<html>
+  <head>
+  </head>
+  <body>
+    <h1>Flight {{ flight.id}}</h1>
+    <ul>
+
+        <li>
+          Origin: {{ flight.origin }}
+        </li>
+        <li>
+          Destination: {{ flight.destination }}
+        </li>
+
+    </ul>
+
+    <h2>Passengers</h2>
+    <ul>
+      {% for passenger in passengers %}
+          <li>{{ passenger }}</li>
+      {% empty %}
+        <li>No passengers</li>
+      {% endfor %}
+    </ul>
+
+    <hr>
+    <h2>Add a Passenger</h2>
+    {% if non_passengers %}
+    <form action="{% url 'book' flight_id %}" method="post">
+      {% csrf_token %}  // needed in django to allow form submission (for security)
+      <select name="passenger">
+        {% for passenger in non_passengers %}
+          <option value="{{% passenger.id %}}">{{ passenger }}</option>
+      </select>
+      <input type="submit" value="Book Flight"/>
+    </form>
+    {% else %}
+      <div>No passengers to add.</div>
+    {% endif %}
+    <a href="{% url 'index' %}">Back to full listing</a>   // here use name of page giving in urls.py
+  </body>
+</html>
+
+
+admin - Django administration application that allows creation/modification of data
+admin.py - need to register models with admin.py
+
+from django.contrib import admin
+
+from .models import Airport, Flight
+
+admin.site.register(Airport)
+admin.site.register(Flight)
+admin.site.register(Passenger)
+
+login to admin site - built out of box
+python manage.py createsuperuser  # creates superuser for access to admin site
+can be customized to add constraints
+
+html template inheritance
+base.html
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>{% title body %} {%% endblock }</title>
+  </head>
+  <body>
+    {% block body %}
+    {%% endblock }
+  </body>
+</html>
+
+index.html
+{% extends "flights/base.html" %}
+
+{% block title %}
+  Flights
+{% endblock %}
+  {% block body%}
+    <h1>Flights</h1>
+    <ul>
+      {% for flight in flights %}
+        <li>
+          <a href>="{% url 'flight' flight.id %}"{{ flight }}</a>  // url name and id to pass into it
+        </li>
+      {% endfor %}
+    </ul>
+{% endblock %}
+
+// can do same for flights.html
+
+Django's template language powerful - look at documentation
+  good filters to get everything to look exactly like you want it to
+// source code does a few other things - css formatting, admin formatting
+
+Login and Authentication
+Authentication and Authorization app built in
+See authentication application in source code
+
+django also supports sessions - installed as default in settings.py
+but djano authentication takes care of most of this stuff for us
