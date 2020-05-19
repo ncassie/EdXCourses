@@ -1,0 +1,134 @@
+Lecture 8 - Testing and CI/CD
+
+django
+  airline example
+  customize administrative interface
+  many options. This shows a few. See django documentation
+  admin.py
+
+  filter_horizontal = (flights) # way to manipulate flights
+  (gives box for moving flights back and forth)
+
+  PassengerInLine(admin.StackedInLine) class - allows passthrough of passengers to class admin page
+    extra = 1 # allows adding one flight
+  FlightAdmin class needed to get this to work as well
+
+  static files in django
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'flights/styles.css' %}"
+
+  flights/static/flights.styles.css
+
+Testing
+  prime.py
+  test0.py - tests prime.py
+
+  from prime import is_prime
+
+  def test_prime(n, expected):
+    if is_prime(n) != expected:
+      print(f"Error on is_prime({n}), expected {expected}")
+
+or can run script with bash calls tests0.sh
+ -c in script tells computer to run line
+
+assert command
+  - built in to python
+  assert says following statement will be True
+    if its not, an assertion error is thrown
+    assert0.py, assert1.py
+
+unittest
+  python library to make testing faster
+  methods:
+    assertEqual
+    assertNotEqual
+    assertTrue
+    assertFalse
+    assertIn
+    assertNotIn
+  tests1.py
+  import unittest
+
+  from prime import is_prime
+
+  class Tests(unittest.TestCase):   # Tests extends unittest.TestCase
+    """STRINGS""" are labels that will give pointer for assertion Error
+    """ """ designate doc string
+    assertFalse
+    assertTrue
+
+Test airline1 tests.py
+  django built in testing framework
+  can create tests in here - import TestCase - extension to unittest
+
+  models.py adds is_valid_flight function
+    tests test this function
+    django creates separate test database so not messing with real data
+    python manage.py test     # runs tests
+
+test template aspects
+  airline2 test.py
+
+  import djagno.test import Client, TestCase   # client simulates web client
+
+  def test_index(self):
+    c = Client()   # create simulated web Client
+    response = c.get("/")  # have client get / route
+    self.assertEqual(response.status_code, 200)  # test got success response
+    self.assertEqual(response.context("flights").count(), 2) # test number of flights returned to index function (using test database)
+
+testing javascript applications
+  selenium - uses webdriver to user python code to control what's going on in browser/simulate user
+  selenium project tests.py
+
+Software Development Goals and Practices
+CI/CD - Continuous Integration and Continuous Delivery
+  Continuous Integration
+    - frequent merges to main branch
+    - automated unit testing - any time changes merged to branch or pushed to git hub, tests automatically run
+  Continuous Delivery
+    - Automated application deployment - incremental changes deployed once pushed and tests passed
+
+    Travis - CI tool
+      code pushed to github; can run tests on any branch
+      github notifies travis of changes
+      travis pulls code and runs tests and posts results to github
+
+      YAML - used  to configure
+        key: value
+        key2:
+          - item1
+          - item2
+          - item3
+
+      Travis YAML file:
+      language: python
+      python:
+        -3.6
+      install:
+        - pip install -r requirements.txt  (like Django)
+      script:
+        - python manage.py test
+
+      airline3 .travis.YAML
+
+      got to github repository
+      travisci.org - go to profile, link to github account, enable travis
+      Travis can also deploy to AWS automatically if tests passed
+
+Compatibility issues:
+  Containers
+    not quite virtual machines -but isolated containers that have what we need for application (called images)
+    ensures appropriate setup for app
+
+    Docker
+    airline4 - docker version airline app
+    Dockerfile - defines docker image - instructions for creating container
+    settings.py - adds postgres database
+    docker-compose.yaml - defines services that make up application that need to be run
+    commandline: docker-compose up
+    docker figures out how to install postgres
+    can give app to anyone with docker and they can install and run it
+
+    Travis can interact with Docker
